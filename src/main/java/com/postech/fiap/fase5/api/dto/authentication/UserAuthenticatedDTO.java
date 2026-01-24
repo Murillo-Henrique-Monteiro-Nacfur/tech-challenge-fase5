@@ -1,6 +1,6 @@
-package coding.interview.app.api.dto.authentication;
+package com.postech.fiap.fase5.api.dto.authentication;
 
-import coding.interview.app.api.entities.UserRoles;
+import com.postech.fiap.fase5.api.entities.UserRoles;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 public class UserAuthenticatedDTO extends Throwable implements UserDetails {
 
-    public UserAuthenticatedDTO(Long id, String username, String password, UserRoles userRole) {
+    public UserAuthenticatedDTO(Long id, String username, String password, List<UserRoles> userRole) {
         super();
         this.id = id;
         this.password = password;
@@ -26,7 +26,7 @@ public class UserAuthenticatedDTO extends Throwable implements UserDetails {
         this.isAccountNonLocked = true;
         this.isCredentialsNonExpired = true;
         this.isEnabled = true;
-        this.authorities = List.of(userRole);
+        this.authorities = userRole;
     }
 
     private Long id;
@@ -44,7 +44,6 @@ public class UserAuthenticatedDTO extends Throwable implements UserDetails {
         return authorities.stream()
                 .map(role -> (GrantedAuthority) () -> "ROLE_" + role)
                 .toList();
-
     }
 
     @Override

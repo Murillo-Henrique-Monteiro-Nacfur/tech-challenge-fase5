@@ -1,4 +1,4 @@
-package com.postech.fiap.fase5.api.dto;
+package com.postech.fiap.fase5.api.dto.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

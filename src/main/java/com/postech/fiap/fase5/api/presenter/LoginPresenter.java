@@ -1,6 +1,6 @@
-package coding.interview.app.api.presenter;
+package com.postech.fiap.fase5.api.presenter;
 
-import coding.interview.app.api.dto.authentication.LoginResponseDTO;
+import com.postech.fiap.fase5.api.dto.authentication.LoginResponseDTO;
 import org.springframework.stereotype.Component;
 
 @Component

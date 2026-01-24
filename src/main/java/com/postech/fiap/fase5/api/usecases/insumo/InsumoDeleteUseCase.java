@@ -1,4 +1,4 @@
-package com.postech.fiap.fase5.api.usecases;
+package com.postech.fiap.fase5.api.usecases.insumo;
 
 import com.postech.fiap.fase5.api.repositories.InsumoRepository;
 import lombok.RequiredArgsConstructor;

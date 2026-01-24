@@ -1,4 +1,4 @@
-package coding.interview.app.infrastructure.swagger;
+package com.postech.fiap.fase5.infrastructure.swagger;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -16,9 +16,9 @@ public class SwaggerConfig {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
                 .info(new Info()
-                        .title("SecureFlight Api")
+                        .title("Fase5 Api")
                         .version("1.0.0")
-                        .description("API developed for managing flights."))
+                        .description("API developed for managing medicines."))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,

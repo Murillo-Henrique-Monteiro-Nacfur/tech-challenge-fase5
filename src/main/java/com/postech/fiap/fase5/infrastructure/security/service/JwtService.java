@@ -1,7 +1,6 @@
-package com.project.email_expenses_service.infrastructure.security.service;
+package com.postech.fiap.fase5.infrastructure.security.service;
 
-
-import com.project.email_expenses_service.api.dto.authentication.UserAuthenticatedDTO;
+import com.postech.fiap.fase5.api.dto.authentication.UserAuthenticatedDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -33,11 +32,27 @@ public class JwtService {
         }
         var claims = JwtClaimsSet.builder()
                 .subject(authentication.getName())
-                .issuer("email-expenses-service")
+                .issuer("tech-challenge-fase5-service")
                 .issuedAt(instant)
                 .expiresAt(instant.plusSeconds(expirationTime))
                 .claim("scope", scopes)
                 .claim("userId", userId)
+                .build();
+
+        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
+    public String generateTokenForClient(String clientId, String scopes) {
+        Instant instant = Instant.now();
+        long expirationTime = 3600000L; // 1 hour
+
+        var claims = JwtClaimsSet.builder()
+                .subject(clientId)
+                .issuer("tech-challenge-fase5-service")
+                .issuedAt(instant)
+                .expiresAt(instant.plusSeconds(expirationTime))
+                .claim("scope", scopes)
+                .claim("client_id", clientId)
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

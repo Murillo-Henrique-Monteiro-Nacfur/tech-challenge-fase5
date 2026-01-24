@@ -1,9 +1,10 @@
-package coding.interview.app.api.controllers;
+package com.postech.fiap.fase5.api.controllers;
 
-import coding.interview.app.api.dto.authentication.LoginRequestDTO;
-import coding.interview.app.api.dto.authentication.LoginResponseDTO;
-import coding.interview.app.api.presenter.LoginPresenter;
-import coding.interview.app.api.services.authentication.AuthenticationService;
+
+import com.postech.fiap.fase5.api.dto.authentication.LoginRequestDTO;
+import com.postech.fiap.fase5.api.dto.authentication.LoginResponseDTO;
+import com.postech.fiap.fase5.api.presenter.LoginPresenter;
+import com.postech.fiap.fase5.api.services.authentication.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

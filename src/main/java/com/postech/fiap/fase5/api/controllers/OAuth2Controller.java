@@ -1,7 +1,7 @@
 package com.postech.fiap.fase5.api.controllers;
 
-import com.postech.fiap.fase5.api.dto.TokenRequest;
-import com.postech.fiap.fase5.api.dto.TokenResponse;
+import com.postech.fiap.fase5.api.dto.client.TokenRequest;
+import com.postech.fiap.fase5.api.dto.client.TokenResponse;
 import com.postech.fiap.fase5.api.services.authentication.ClientAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

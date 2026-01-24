@@ -1,8 +1,8 @@
-package coding.interview.app.api.services.user;
+package com.postech.fiap.fase5.api.services.user;
 
-import coding.interview.app.api.entities.Users;
-import coding.interview.app.api.repositories.UserRepository;
-import coding.interview.app.infrastructure.exceptions.SecureFlightNotFoundException;
+import com.postech.fiap.fase5.api.entities.Users;
+import com.postech.fiap.fase5.api.repositories.UserRepository;
+import com.postech.fiap.fase5.infrastructure.exceptions.ApplicationNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +15,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Users findUserByLogin(String login) {
-        return userRepository.findByLogin(login).orElseThrow(() -> new SecureFlightNotFoundException("User not found"));
+        return userRepository.findByLogin(login).orElseThrow(() -> new ApplicationNotFoundException("User not found"));
     }
 
 }

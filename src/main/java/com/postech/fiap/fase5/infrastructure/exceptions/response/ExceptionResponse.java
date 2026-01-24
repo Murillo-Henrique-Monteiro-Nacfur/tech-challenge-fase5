@@ -1,4 +1,4 @@
-package com.project.email_expenses_service.infrastructure.exceptions.response;
+package com.postech.fiap.fase5.infrastructure.exceptions.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

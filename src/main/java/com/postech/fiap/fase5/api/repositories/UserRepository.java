@@ -1,6 +1,6 @@
-package coding.interview.app.api.repositories;
+package com.postech.fiap.fase5.api.repositories;
 
-import coding.interview.app.api.entities.Users;
+import com.postech.fiap.fase5.api.entities.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

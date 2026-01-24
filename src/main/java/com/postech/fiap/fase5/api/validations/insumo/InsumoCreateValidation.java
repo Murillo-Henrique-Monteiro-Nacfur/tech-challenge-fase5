@@ -1,4 +1,4 @@
-package com.postech.fiap.fase5.api.validations;
+package com.postech.fiap.fase5.api.validations.insumo;
 
 import com.postech.fiap.fase5.api.dto.insumos.InsumoDTO;
 

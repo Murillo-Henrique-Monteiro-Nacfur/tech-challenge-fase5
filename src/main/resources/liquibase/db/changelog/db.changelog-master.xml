@@ -4,126 +4,165 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
     <changeSet id="criacao-tabela-usuario" author="murillo.nacfur">
         <sql>
-            CREATE TABLE public."USERS" (
-            "ID" BIGSERIAL NOT NULL,
-            "NAME" VARCHAR(255) NOT NULL,
-            "EMAIL" VARCHAR(255) UNIQUE NOT NULL,
-            "LOGIN" VARCHAR(255) UNIQUE NOT NULL,
-            "PASSWORD" VARCHAR(255) NOT NULL,
-            "BIRTH_DATE" DATE,
-            "ROLE" VARCHAR(255) NOT NULL CHECK ("ROLE" IN ('ADMIN', 'CLIENT')),
-            "CREATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            "UPDATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY ("ID")
+            CREATE TABLE public.users (
+            id BIGSERIAL NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            login VARCHAR(255) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            birth_date DATE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
             );
         </sql>
         <rollback>
-            DROP TABLE public."USERS";
+            DROP TABLE public.users;
             DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-usuario';
         </rollback>
     </changeSet>
 
-    <changeSet id="criacao-tabela-endereco" author="willian.visicati">
+    <changeSet id="criacao-tabela-user-roles" author="murillo.nacfur">
         <sql>
-            CREATE TABLE PUBLIC."ADDRESS" (
-            "ID" BIGSERIAL PRIMARY KEY,
-            "STREET" VARCHAR(255) NOT NULL,
-            "NUMBER" VARCHAR(20) NOT NULL,
-            "CITY" VARCHAR(255) NOT NULL,
-            "STATE" VARCHAR(2) NOT NULL,
-            "COUNTRY" VARCHAR(255) NOT NULL,
-            "NEIGHBORHOOD" VARCHAR(255) NOT NULL,
-            "ZIP_CODE" VARCHAR(255) NOT NULL,
-            "USER_ID" BIGINT NOT NULL,
-            FOREIGN KEY ("USER_ID") REFERENCES PUBLIC."USERS"("ID")
+            CREATE TABLE public.user_role (
+            id BIGSERIAL PRIMARY KEY,
+            user_id BIGINT NOT NULL,
+            role VARCHAR(255) NOT NULL CHECK (role IN ('ADMIN','CLIENT')),
+            FOREIGN KEY (user_id) REFERENCES public.users(id)
             );
         </sql>
         <rollback>
-            DROP TABLE public."ADDRESS";
-            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-endereco';
+            DROP TABLE public.user_role;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-user-roles';
         </rollback>
     </changeSet>
 
-    <changeSet id="criacao-usuario-padrao" author="murillo.nacfur">
+    <changeSet id="criacao-tabela-clients" author="ai.assistant">
         <sql>
-            INSERT INTO public."USERS"("NAME", "EMAIL", "LOGIN", "PASSWORD", "BIRTH_DATE", "ROLE")
-            VALUES ('admin', 'admin@gmail.com', 'admin', '$2a$10$KkUrgvp0fZ8VURE6zz3gRur47uwgdCeirCdOA0xvt8oS2rPJmFXom', '2000-01-01', 'ADMIN');
-        </sql>
-        <rollback>
-            DELETE FROM public."USERS" WHERE "LOGIN" = 'admin';
-            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-usuario-padrao';
-        </rollback>
-    </changeSet>
-
-    <changeSet id="remover-coluna-de-usuario-do-endereco" author="murillo.nacfur">
-        <sql>
-            ALTER TABLE PUBLIC."ADDRESS" DROP COLUMN "USER_ID";
-        </sql>
-        <rollback>
-            ALTER TABLE public."ADDRESS" ADD "USER_ID" BIGINT;
-            ALTER TABLE public."ADDRESS" ADD FOREIGN KEY ("USER_ID") REFERENCES PUBLIC."USERS"("ID");
-            ALTER TABLE public."ADDRESS" ALTER COLUMN "USER_ID" SET NOT NULL;
-            DELETE FROM DATABASECHANGELOG WHERE ID = 'remover-coluna-de-usuario-do-endereco';
-        </rollback>
-    </changeSet>
-
-    <changeSet id="relacao-endereco-usuario-e-restaurants" author="murillo.nacfur">
-        <sql>
-            ALTER TABLE PUBLIC."ADDRESS" ADD COLUMN "ADDRESSABLE_ID" BIGINT NOT NULL;
-            ALTER TABLE PUBLIC."ADDRESS" ADD COLUMN "ADDRESSABLE_TYPE" VARCHAR(255) NOT NULL;
-            ALTER TABLE PUBLIC."ADDRESS" ADD COLUMN "CREATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-            ALTER TABLE PUBLIC."ADDRESS" ADD COLUMN "UPDATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-        </sql>
-        <rollback>
-            ALTER TABLE public."ADDRESS" DROP COLUMN "ADDRESSABLE_ID";
-            ALTER TABLE public."ADDRESS" DROP COLUMN "ADDRESSABLE_TYPE";
-            ALTER TABLE PUBLIC."ADDRESS" DROP COLUMN "CREATED_AT";
-            ALTER TABLE PUBLIC."ADDRESS" DROP COLUMN "UPDATED_AT";
-            DELETE FROM DATABASECHANGELOG WHERE ID = 'relacao-endereco-usuario-e-restaurants';
-        </rollback>
-    </changeSet>
-
-    <changeSet id="criacao-tabela-de-restaurante" author="murillo.nacfur">
-        <sql>
-            CREATE TABLE PUBLIC."RESTAURANT" (
-            "ID" BIGSERIAL PRIMARY KEY,
-            "NAME" VARCHAR(255) NOT NULL,
-            "CNPJ" VARCHAR(14) NOT NULL,
-            "DESCRIPTION" VARCHAR(255) NOT NULL,
-            "CUISINE_TYPE" VARCHAR(255) NOT NULL,
-            "OPEN_TIME" TIME NOT NULL,
-            "CLOSE_TIME" TIME NOT NULL,
-            "USER_ID" BIGINT NOT NULL,
-            "CREATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            "UPDATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY ("USER_ID") REFERENCES PUBLIC."USERS"("ID")
+            CREATE TABLE public.clients (
+            id BIGSERIAL PRIMARY KEY,
+            client_id VARCHAR(255) UNIQUE NOT NULL,
+            client_secret VARCHAR(255) NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            scopes VARCHAR(255)
             );
         </sql>
         <rollback>
-            DROP TABLE public."RESTAURANT";
-            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-de-restaurante';
+            DROP TABLE public.clients;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-clients';
         </rollback>
     </changeSet>
 
-    <changeSet id="criacao-tabela-de-produto" author="willian.visicati">
+    <changeSet id="criacao-tabela-ponto-dispensacao" author="ai.assistant">
         <sql>
-            CREATE TABLE PUBLIC."PRODUCT" (
-            "ID" BIGSERIAL PRIMARY KEY,
-            "NAME" VARCHAR(255) NOT NULL,
-            "DESCRIPTION" VARCHAR(500) NOT NULL,
-            "PRICE" DECIMAL(10, 2) NOT NULL,
-            "PHOTO_URL" VARCHAR(255),
-            "RESTAURANT_ID" BIGINT NOT NULL,
-            "CREATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            "UPDATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY ("RESTAURANT_ID") REFERENCES PUBLIC."RESTAURANT"("ID")
+            CREATE TABLE public.ponto_dispensacao (
+            id BIGSERIAL PRIMARY KEY,
+            cnes VARCHAR(255),
+            nome VARCHAR(255) NOT NULL,
+            tipo VARCHAR(255) NOT NULL CHECK (tipo IN ('FARMACIA_CENTRAL', 'FARMACIA_MUNICIPAL', 'ALMOXARIFADO')),
+            email_responsavel VARCHAR(255)
             );
-            </sql>
+        </sql>
         <rollback>
-            DROP TABLE public."PRODUCT";
-            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-de-produto';
+            DROP TABLE public.ponto_dispensacao;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-ponto-dispensacao';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="criacao-tabela-insumo" author="ai.assistant">
+        <sql>
+            CREATE TABLE public.insumo (
+            id BIGSERIAL PRIMARY KEY,
+            codigo_catmat VARCHAR(255),
+            nome_generico VARCHAR(255) NOT NULL,
+            forma_farmaceutica VARCHAR(255),
+            marca VARCHAR(255),
+            descricao VARCHAR(255)
+            );
+        </sql>
+        <rollback>
+            DROP TABLE public.insumo;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-insumo';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="criacao-tabela-lote" author="ai.assistant">
+        <sql>
+            CREATE TABLE public.lote (
+            id BIGSERIAL PRIMARY KEY,
+            numero_lote VARCHAR(255) NOT NULL,
+            insumo_id BIGINT NOT NULL,
+            data_validade DATE,
+            data_fabricacao DATE,
+            quantidade INT,
+            id_user BIGINT,
+            FOREIGN KEY (insumo_id) REFERENCES public.insumo(id)
+            );
+        </sql>
+        <rollback>
+            DROP TABLE public.lote;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-lote';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="criacao-tabela-lote-inventario" author="ai.assistant">
+        <sql>
+            CREATE TABLE public.lote_inventario (
+            id BIGSERIAL PRIMARY KEY,
+            ponto_dispensacao_id BIGINT NOT NULL,
+            id_lote BIGINT NOT NULL,
+            quantidade INT NOT NULL,
+            data_hora_chegada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ponto_dispensacao_id) REFERENCES public.ponto_dispensacao(id),
+            FOREIGN KEY (id_lote) REFERENCES public.lote(id)
+            );
+        </sql>
+        <rollback>
+            DROP TABLE public.lote_inventario;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-lote-inventario';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="criacao-tabela-historico-consumo" author="ai.assistant">
+        <sql>
+            CREATE TABLE public.historico_consumo (
+            id BIGSERIAL PRIMARY KEY,
+            ponto_dispensacao_id BIGINT NOT NULL,
+            id_lote_insumo BIGINT NOT NULL,
+            quantidade INT NOT NULL,
+            data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            id_user BIGINT,
+            FOREIGN KEY (ponto_dispensacao_id) REFERENCES public.ponto_dispensacao(id),
+            FOREIGN KEY (id_lote_insumo) REFERENCES public.lote(id)
+            );
+        </sql>
+        <rollback>
+            DROP TABLE public.historico_consumo;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-historico-consumo';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="criacao-tabela-movimentacoes" author="ai.assistant">
+        <sql>
+            CREATE TABLE public.movimentacoes (
+            id BIGSERIAL PRIMARY KEY,
+            ponto_dispensacao_origem_id BIGINT NOT NULL,
+            ponto_dispensacao_destino_id BIGINT NOT NULL,
+            id_lote BIGINT NOT NULL,
+            quantidade INT NOT NULL,
+            data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            id_user BIGINT,
+            FOREIGN KEY (ponto_dispensacao_origem_id) REFERENCES public.ponto_dispensacao(id),
+            FOREIGN KEY (ponto_dispensacao_destino_id) REFERENCES public.ponto_dispensacao(id),
+            FOREIGN KEY (id_lote) REFERENCES public.lote(id)
+            );
+        </sql>
+        <rollback>
+            DROP TABLE public.movimentacoes;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-movimentacoes';
         </rollback>
     </changeSet>
 

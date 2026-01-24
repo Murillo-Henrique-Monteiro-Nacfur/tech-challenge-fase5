@@ -1,7 +1,7 @@
-package com.postech.fiap.fase5.api.validations.implementation;
+package com.postech.fiap.fase5.api.validations.insumo.implementation;
 
 import com.postech.fiap.fase5.api.dto.insumos.InsumoDTO;
-import com.postech.fiap.fase5.api.validations.InsumoCreateValidation;
+import com.postech.fiap.fase5.api.validations.insumo.InsumoCreateValidation;
 import org.springframework.stereotype.Component;
 
 @Component

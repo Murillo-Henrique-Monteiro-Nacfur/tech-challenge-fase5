@@ -1,8 +1,7 @@
 package com.postech.fiap.fase5.api.controllers.insumo;
 
-import com.postech.fiap.fase5.api.controllers.InsumoControllerSwagger;
-import com.postech.fiap.fase5.api.dto.InsumoDTO;
-import com.postech.fiap.fase5.api.usecases.InsumoUpdateUseCase;
+import com.postech.fiap.fase5.api.dto.insumos.InsumoDTO;
+import com.postech.fiap.fase5.api.usecases.insumo.InsumoUpdateUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

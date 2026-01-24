@@ -1,22 +1,23 @@
 package com.postech.fiap.fase5.api.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "clients")
-@Data
+@Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Client {
+public class Client extends BaseEntity  {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator", sequenceName = "clients_id_seq", allocationSize = 1)
+    @Column(name = "id")
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String clientId;

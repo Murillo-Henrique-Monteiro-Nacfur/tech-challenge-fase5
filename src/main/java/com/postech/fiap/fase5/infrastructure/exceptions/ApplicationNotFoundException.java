@@ -4,11 +4,11 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class EmailExpensesNotFoundException extends RuntimeException {
+public class ApplicationNotFoundException extends RuntimeException {
 
     private final HttpStatus httpStatus = HttpStatus.NOT_FOUND;
 
-    public EmailExpensesNotFoundException(String message) {
+    public ApplicationNotFoundException(String message) {
         super(message);
     }
 

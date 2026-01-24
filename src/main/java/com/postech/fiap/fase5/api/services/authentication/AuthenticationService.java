@@ -1,6 +1,6 @@
-package coding.interview.app.api.services.authentication;
+package com.postech.fiap.fase5.api.services.authentication;
 
-import coding.interview.app.infrastructure.security.service.JwtService;
+import com.postech.fiap.fase5.infrastructure.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

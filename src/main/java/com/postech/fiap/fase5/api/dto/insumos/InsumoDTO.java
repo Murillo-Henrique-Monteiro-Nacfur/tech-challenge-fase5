@@ -1,6 +1,5 @@
-package com.postech.fiap.fase5.api.dto;
+package com.postech.fiap.fase5.api.dto.insumos;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.postech.fiap.fase5.api.entities.Insumo;
 
 public record InsumoDTO(

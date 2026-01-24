@@ -1,6 +1,6 @@
-package com.project.email_expenses_service.infrastructure.exceptions;
+package com.postech.fiap.fase5.infrastructure.exceptions;
 
-import com.project.email_expenses_service.infrastructure.exceptions.response.ExceptionResponse;
+import com.postech.fiap.fase5.infrastructure.exceptions.response.ExceptionResponse;
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -62,15 +62,15 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exceptionResponse, emailExpensesException.getHttpStatus());
     }
 
-    @ExceptionHandler(EmailExpensesNotFoundException.class)
-    public final ResponseEntity<ExceptionResponse<Object>> handleSecureFlightNotFoundExceptions(EmailExpensesNotFoundException emailExpensesNotFoundException) {
+    @ExceptionHandler(ApplicationNotFoundException.class)
+    public final ResponseEntity<ExceptionResponse<Object>> handleSecureFlightNotFoundExceptions(ApplicationNotFoundException applicationNotFoundException) {
         ExceptionResponse<Object> exceptionResponse = new ExceptionResponse<>(
                 LocalDateTime.now().toString()
                 , "SecureFlight Not Found error"
-                , emailExpensesNotFoundException.getMessage()
+                , applicationNotFoundException.getMessage()
         );
 
-        return new ResponseEntity<>(exceptionResponse, emailExpensesNotFoundException.getHttpStatus());
+        return new ResponseEntity<>(exceptionResponse, applicationNotFoundException.getHttpStatus());
     }
 
     @ExceptionHandler(value = {InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class})

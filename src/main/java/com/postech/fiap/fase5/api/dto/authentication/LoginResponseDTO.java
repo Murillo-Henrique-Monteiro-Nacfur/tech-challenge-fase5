@@ -1,4 +1,4 @@
-package coding.interview.app.api.dto.authentication;
+package com.postech.fiap.fase5.api.dto.authentication;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;

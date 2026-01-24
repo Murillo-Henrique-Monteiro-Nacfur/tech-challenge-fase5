@@ -1,8 +1,9 @@
-package com.project.email_expenses_service.infrastructure.security.service;
+package com.postech.fiap.fase5.infrastructure.security.service;
 
-import com.project.email_expenses_service.api.dto.authentication.UserAuthenticatedDTO;
-import com.project.email_expenses_service.api.models.UserRole;
-import com.project.email_expenses_service.api.services.user.UserService;
+
+import com.postech.fiap.fase5.api.dto.authentication.UserAuthenticatedDTO;
+import com.postech.fiap.fase5.api.entities.UserRole;
+import com.postech.fiap.fase5.api.services.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

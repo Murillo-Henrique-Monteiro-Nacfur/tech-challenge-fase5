@@ -2,15 +2,25 @@
 
 ## 1. Banco de Dados e Entidades
 - [ ] **Liquibase**: Adicionar coluna `client_id` na tabela `ponto_dispensacao`.
-- [ ] **Entidade**: Atualizar `PontoDispensacao` com o relacionamento/campo `clientId`.
-- [ ] **Repositório**: Criar método de busca segura `findByClientId`.
+- [ ] **Entidade PontoDispensacao**: Criar classe mapeando a tabela `ponto_dispensacao` (incluindo `clientId`).
+- [ ] **Entidade Lote**: Criar classe mapeando a tabela `lote`.
+- [ ] **Entidade LoteInventario**: Criar classe mapeando a tabela `lote_inventario`.
+- [ ] **Entidade HistoricoConsumo**: Criar classe mapeando a tabela `historico_consumo`.
+- [ ] **Entidade Movimentacoes**: Criar classe mapeando a tabela `movimentacoes`.
 
-## 2. DTOs (JSON Structure)
+## 2. Repositórios
+- [ ] **PontoDispensacaoRepository**: Com método `findByClientId`.
+- [ ] **LoteRepository**: Com método `findByNumeroLoteAndInsumoId`.
+- [ ] **LoteInventarioRepository**: Com método `findByPontoDispensacaoIdAndLoteId`.
+- [ ] **HistoricoConsumoRepository**: CRUD básico.
+- [ ] **MovimentacoesRepository**: CRUD básico.
+
+## 3. DTOs (JSON Structure)
 - [ ] Criar `InsumoDetalheDTO`.
 - [ ] Criar `ItemCargaDTO`.
 - [ ] Criar `CargaEstoqueDTO`.
 
-## 3. Use Cases (Regras de Negócio)
+## 4. Use Cases (Regras de Negócio)
 - [ ] **InsumoUpsertUseCase**: Garantir cadastro de insumos.
 - [ ] **LoteUpsertUseCase**: Garantir cadastro de lotes mestres.
 - [ ] **EstoqueMovimentacaoUseCase**: Atualizar saldo em `lote_inventario`.
@@ -19,5 +29,5 @@
     - Validação de Segurança (Ponto pertence ao Cliente?).
     - Orquestração dos passos acima.
 
-## 4. Controller
+## 5. Controller
 - [ ] **EstoqueController**: Endpoint `POST /estoque/carga`.

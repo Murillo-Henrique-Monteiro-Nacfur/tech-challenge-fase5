@@ -1,4 +1,4 @@
-package com.project.email_expenses_service.api.models;
+package com.postech.fiap.fase5.api.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

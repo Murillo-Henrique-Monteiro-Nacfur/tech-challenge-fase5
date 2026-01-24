@@ -1,4 +1,4 @@
-package com.project.email_expenses_service.infrastructure.exceptions;
+package com.postech.fiap.fase5.infrastructure.exceptions;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

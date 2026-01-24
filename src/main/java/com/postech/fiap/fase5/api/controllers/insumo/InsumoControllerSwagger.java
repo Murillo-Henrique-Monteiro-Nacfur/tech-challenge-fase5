@@ -1,4 +1,4 @@
-package com.postech.fiap.fase5.api.controllers;
+package com.postech.fiap.fase5.api.controllers.insumo;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 

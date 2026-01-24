@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: fase5
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5433/postgres}
+    username: ${DATASOURCE_USERNAME:application}
+    password: ${DATASOURCE_PASSWORD:7KTu)$U9W1%7}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        default_schema: public
+  liquibase:
+    change-log: classpath:liquibase/db/changelog/db.changelog-master.xml
+    default-schema: public
