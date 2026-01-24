@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="criacao-tabela-usuario" author="murillo.nacfur">
+        <sql>
+            CREATE TABLE public."USERS" (
+            "ID" BIGSERIAL NOT NULL,
+            "NAME" VARCHAR(255) NOT NULL,
+            "EMAIL" VARCHAR(255) UNIQUE NOT NULL,
+            "LOGIN" VARCHAR(255) UNIQUE NOT NULL,
+            "PASSWORD" VARCHAR(255) NOT NULL,
+            "BIRTH_DATE" DATE,
+            "ROLE" VARCHAR(255) NOT NULL CHECK ("ROLE" IN ('ADMIN', 'CLIENT')),
+            "CREATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "UPDATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY ("ID")
+            );
+        </sql>
+        <rollback>
+            DROP TABLE public."USERS";
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-usuario';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="criacao-tabela-endereco" author="willian.visicati">
+        <sql>
+            CREATE TABLE PUBLIC."ADDRESS" (
+            "ID" BIGSERIAL PRIMARY KEY,
+            "STREET" VARCHAR(255) NOT NULL,
+            "NUMBER" VARCHAR(20) NOT NULL,
+            "CITY" VARCHAR(255) NOT NULL,
+            "STATE" VARCHAR(2) NOT NULL,
+            "COUNTRY" VARCHAR(255) NOT NULL,
+            "NEIGHBORHOOD" VARCHAR(255) NOT NULL,
+            "ZIP_CODE" VARCHAR(255) NOT NULL,
+            "USER_ID" BIGINT NOT NULL,
+            FOREIGN KEY ("USER_ID") REFERENCES PUBLIC."USERS"("ID")
+            );
+        </sql>
+        <rollback>
+            DROP TABLE public."ADDRESS";
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-endereco';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="criacao-usuario-padrao" author="murillo.nacfur">
+        <sql>
+            INSERT INTO public."USERS"("NAME", "EMAIL", "LOGIN", "PASSWORD", "BIRTH_DATE", "ROLE")
+            VALUES ('admin', 'admin@gmail.com', 'admin', '$2a$10$KkUrgvp0fZ8VURE6zz3gRur47uwgdCeirCdOA0xvt8oS2rPJmFXom', '2000-01-01', 'ADMIN');
+        </sql>
+        <rollback>
+            DELETE FROM public."USERS" WHERE "LOGIN" = 'admin';
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-usuario-padrao';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="remover-coluna-de-usuario-do-endereco" author="murillo.nacfur">
+        <sql>
+            ALTER TABLE PUBLIC."ADDRESS" DROP COLUMN "USER_ID";
+        </sql>
+        <rollback>
+            ALTER TABLE public."ADDRESS" ADD "USER_ID" BIGINT;
+            ALTER TABLE public."ADDRESS" ADD FOREIGN KEY ("USER_ID") REFERENCES PUBLIC."USERS"("ID");
+            ALTER TABLE public."ADDRESS" ALTER COLUMN "USER_ID" SET NOT NULL;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'remover-coluna-de-usuario-do-endereco';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="relacao-endereco-usuario-e-restaurants" author="murillo.nacfur">
+        <sql>
+            ALTER TABLE PUBLIC."ADDRESS" ADD COLUMN "ADDRESSABLE_ID" BIGINT NOT NULL;
+            ALTER TABLE PUBLIC."ADDRESS" ADD COLUMN "ADDRESSABLE_TYPE" VARCHAR(255) NOT NULL;
+            ALTER TABLE PUBLIC."ADDRESS" ADD COLUMN "CREATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+            ALTER TABLE PUBLIC."ADDRESS" ADD COLUMN "UPDATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+        </sql>
+        <rollback>
+            ALTER TABLE public."ADDRESS" DROP COLUMN "ADDRESSABLE_ID";
+            ALTER TABLE public."ADDRESS" DROP COLUMN "ADDRESSABLE_TYPE";
+            ALTER TABLE PUBLIC."ADDRESS" DROP COLUMN "CREATED_AT";
+            ALTER TABLE PUBLIC."ADDRESS" DROP COLUMN "UPDATED_AT";
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'relacao-endereco-usuario-e-restaurants';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="criacao-tabela-de-restaurante" author="murillo.nacfur">
+        <sql>
+            CREATE TABLE PUBLIC."RESTAURANT" (
+            "ID" BIGSERIAL PRIMARY KEY,
+            "NAME" VARCHAR(255) NOT NULL,
+            "CNPJ" VARCHAR(14) NOT NULL,
+            "DESCRIPTION" VARCHAR(255) NOT NULL,
+            "CUISINE_TYPE" VARCHAR(255) NOT NULL,
+            "OPEN_TIME" TIME NOT NULL,
+            "CLOSE_TIME" TIME NOT NULL,
+            "USER_ID" BIGINT NOT NULL,
+            "CREATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "UPDATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY ("USER_ID") REFERENCES PUBLIC."USERS"("ID")
+            );
+        </sql>
+        <rollback>
+            DROP TABLE public."RESTAURANT";
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-de-restaurante';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="criacao-tabela-de-produto" author="willian.visicati">
+        <sql>
+            CREATE TABLE PUBLIC."PRODUCT" (
+            "ID" BIGSERIAL PRIMARY KEY,
+            "NAME" VARCHAR(255) NOT NULL,
+            "DESCRIPTION" VARCHAR(500) NOT NULL,
+            "PRICE" DECIMAL(10, 2) NOT NULL,
+            "PHOTO_URL" VARCHAR(255),
+            "RESTAURANT_ID" BIGINT NOT NULL,
+            "CREATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "UPDATED_AT" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY ("RESTAURANT_ID") REFERENCES PUBLIC."RESTAURANT"("ID")
+            );
+            </sql>
+        <rollback>
+            DROP TABLE public."PRODUCT";
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-de-produto';
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
