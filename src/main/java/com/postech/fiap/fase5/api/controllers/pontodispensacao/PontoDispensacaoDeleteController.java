@@ -1,6 +1,6 @@
-package com.postech.fiap.fase5.api.controllers.insumo;
+package com.postech.fiap.fase5.api.controllers.pontodispensacao;
 
-import com.postech.fiap.fase5.api.usecases.insumo.InsumoDeleteUseCase;
+import com.postech.fiap.fase5.api.usecases.pontodispensacao.PontoDispensacaoDeleteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/insumos")
+@RequestMapping("/pontos-dispensacao")
 @RequiredArgsConstructor
-public class InsumoDeleteController implements InsumoControllerSwagger {
+public class PontoDispensacaoDeleteController implements PontoDispensacaoControllerSwagger {
 
-    private final InsumoDeleteUseCase deleteUseCase;
+    private final PontoDispensacaoDeleteUseCase deleteUseCase;
 
-    @Operation(summary = "Excluir insumo")
+    @Operation(summary = "Excluir ponto de dispensação")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         deleteUseCase.execute(id);

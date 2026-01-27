@@ -2,6 +2,7 @@ package com.postech.fiap.fase5.api.usecases.insumo;
 
 import com.postech.fiap.fase5.api.dto.insumos.InsumoDTO;
 import com.postech.fiap.fase5.api.entities.Insumo;
+import com.postech.fiap.fase5.api.presenter.InsumoPresenter;
 import com.postech.fiap.fase5.api.repositories.InsumoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class InsumoUpdateUseCase {
 
     private final InsumoRepository insumoRepository;
+    private final InsumoPresenter insumoPresenter;
 
     public InsumoDTO execute(Long id, InsumoDTO insumoDTO) {
         Insumo existingInsumo = insumoRepository.findById(id)
@@ -22,6 +24,6 @@ public class InsumoUpdateUseCase {
         existingInsumo.setMarca(insumoDTO.marca());
         existingInsumo.setDescricao(insumoDTO.descricao());
 
-        return InsumoDTO.fromEntity(insumoRepository.save(existingInsumo));
+        return insumoPresenter.toDto(insumoRepository.save(existingInsumo));
     }
 }

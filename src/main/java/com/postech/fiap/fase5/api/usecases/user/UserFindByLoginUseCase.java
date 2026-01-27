@@ -1,4 +1,4 @@
-package com.postech.fiap.fase5.api.services.user;
+package com.postech.fiap.fase5.api.usecases.user;
 
 import com.postech.fiap.fase5.api.entities.Users;
 import com.postech.fiap.fase5.api.repositories.UserRepository;
@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserFindByLoginUseCase {
 
     private final UserRepository userRepository;
 

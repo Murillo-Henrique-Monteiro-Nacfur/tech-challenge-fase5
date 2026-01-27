@@ -1,9 +1,8 @@
 package com.postech.fiap.fase5.api.dto.insumos;
 
-public record InsumoDTO(
-        Long id,
-        String codigoCatmat,
-        String nomeGenerico,
+public record InsumoDetalheDTO(
+        String id,
+        String nome,
         String formaFarmaceutica,
         String marca,
         String descricao

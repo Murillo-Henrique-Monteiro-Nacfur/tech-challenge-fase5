@@ -13,8 +13,7 @@ import lombok.NoArgsConstructor;
 public class Insumo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", sequenceName = "insumo_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -27,7 +26,9 @@ public class Insumo {
     @Column(name = "forma_farmaceutica")
     private String formaFarmaceutica;
 
+    @Column(name = "marca")
     private String marca;
 
+    @Column(name = "descricao")
     private String descricao;
 }

@@ -40,7 +40,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="criacao-tabela-clients" author="ai.assistant">
+    <changeSet id="criacao-tabela-clients" author="murillo.nacfur">
         <sql>
             CREATE TABLE public.clients (
             id BIGSERIAL PRIMARY KEY,
@@ -56,7 +56,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="criacao-tabela-ponto-dispensacao" author="ai.assistant">
+    <changeSet id="criacao-tabela-ponto-dispensacao" author="murillo.nacfur">
         <sql>
             CREATE TABLE public.ponto_dispensacao (
             id BIGSERIAL PRIMARY KEY,
@@ -72,7 +72,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="criacao-tabela-insumo" author="ai.assistant">
+    <changeSet id="criacao-tabela-insumo" author="murillo.nacfur">
         <sql>
             CREATE TABLE public.insumo (
             id BIGSERIAL PRIMARY KEY,
@@ -89,7 +89,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="criacao-tabela-lote" author="ai.assistant">
+    <changeSet id="criacao-tabela-lote" author="murillo.nacfur">
         <sql>
             CREATE TABLE public.lote (
             id BIGSERIAL PRIMARY KEY,
@@ -108,7 +108,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="criacao-tabela-lote-inventario" author="ai.assistant">
+    <changeSet id="criacao-tabela-lote-inventario" author="murillo.nacfur">
         <sql>
             CREATE TABLE public.lote_inventario (
             id BIGSERIAL PRIMARY KEY,
@@ -126,7 +126,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="criacao-tabela-historico-consumo" author="ai.assistant">
+    <changeSet id="criacao-tabela-historico-consumo" author="murillo.nacfur">
         <sql>
             CREATE TABLE public.historico_consumo (
             id BIGSERIAL PRIMARY KEY,
@@ -145,7 +145,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="criacao-tabela-movimentacoes" author="ai.assistant">
+    <changeSet id="criacao-tabela-movimentacoes" author="murillo.nacfur">
         <sql>
             CREATE TABLE public.movimentacoes (
             id BIGSERIAL PRIMARY KEY,
@@ -166,4 +166,49 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="adicionar-client-id-ponto-dispensacao" author="murillo.nacfur">
+        <sql>
+            ALTER TABLE public.ponto_dispensacao ADD COLUMN client_id BIGINT;
+            ALTER TABLE public.ponto_dispensacao ADD CONSTRAINT fk_ponto_dispensacao_client FOREIGN KEY (client_id) REFERENCES public.clients(id);
+        </sql>
+        <rollback>
+            ALTER TABLE public.ponto_dispensacao DROP CONSTRAINT fk_ponto_dispensacao_client;
+            ALTER TABLE public.ponto_dispensacao DROP COLUMN client_id;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'adicionar-client-id-ponto-dispensacao';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="carga-inicial-dados" author="murillo.nacfur">
+        <sql>
+            -- Inserir Usuário Admin (se não existir)
+            INSERT INTO public.users (name, email, login, password, birth_date, created_at, updated_at)
+            VALUES ('Admin User', 'admin@sus.gov.br', 'admin_sus', '$2a$10$KkUrgvp0fZ8VURE6zz3gRur47uwgdCeirCdOA0xvt8oS2rPJmFXom', '1980-01-01', NOW(), NOW())
+            ON CONFLICT (login) DO NOTHING;
+
+            -- Inserir Role Admin
+            INSERT INTO public.user_role (user_id, role)
+            SELECT id, 'ADMIN' FROM public.users WHERE login = 'admin_sus'
+            AND NOT EXISTS (SELECT 1 FROM public.user_role WHERE user_id = public.users.id AND role = 'ADMIN');
+
+            -- Inserir Client (Sistema Farmácia Central)
+            INSERT INTO public.clients (client_id, client_secret, name, scopes)
+            VALUES ('farmacia-central-app', '$2a$10$KkUrgvp0fZ8VURE6zz3gRur47uwgdCeirCdOA0xvt8oS2rPJmFXom', 'Sistema Farmácia Central', 'read write')
+            ON CONFLICT (client_id) DO NOTHING;
+        </sql>
+        <rollback>
+            DELETE FROM public.clients WHERE client_id = 'farmacia-central-app';
+            DELETE FROM public.user_role WHERE user_id = (SELECT id FROM public.users WHERE login = 'admin_sus');
+            DELETE FROM public.users WHERE login = 'admin_sus';
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'carga-inicial-dados';
+        </rollback>
+    </changeSet>
+    <changeSet id="tornar-cnes-unico" author="murillo.nacfur">
+        <sql>
+            ALTER TABLE public.ponto_dispensacao ADD CONSTRAINT uk_ponto_dispensacao_cnes UNIQUE (cnes);
+        </sql>
+        <rollback>
+            ALTER TABLE public.ponto_dispensacao DROP CONSTRAINT uk_ponto_dispensacao_cnes;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'tornar-cnes-unico';
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

@@ -1,4 +1,4 @@
-package com.postech.fiap.fase5.api.services.authentication;
+package com.postech.fiap.fase5.api.usecases.authentication;
 
 import com.postech.fiap.fase5.infrastructure.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class UserAuthenticationUseCase {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;

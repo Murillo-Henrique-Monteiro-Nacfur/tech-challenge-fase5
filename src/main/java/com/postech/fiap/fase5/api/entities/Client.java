@@ -1,9 +1,10 @@
 package com.postech.fiap.fase5.api.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "clients")
@@ -11,7 +12,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Client extends BaseEntity  {
+public class Client {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "sequenceGenerator")
@@ -19,14 +20,15 @@ public class Client extends BaseEntity  {
     @Column(name = "id")
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "client_id", unique = true, nullable = false)
     private String clientId;
 
-    @Column(nullable = false)
+    @Column(name = "client_secret", nullable = false)
     private String clientSecret;
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "scopes")
     private String scopes;
 }
