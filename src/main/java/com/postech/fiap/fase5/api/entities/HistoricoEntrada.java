@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "lote_inventario")
+@Table(name = "historico_entrada")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoteInventario {
+public class HistoricoEntrada {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +30,7 @@ public class LoteInventario {
     @Column(name = "quantidade", nullable = false)
     private Integer quantidade;
 
-    @Column(name = "data_hora_chegada")
-    private LocalDateTime dataHoraChegada;
+    @Column(name = "data_hora")
+    private LocalDateTime dataHora;
+
 }

@@ -112,11 +112,11 @@
         <sql>
             CREATE TABLE public.lote_inventario (
             id BIGSERIAL PRIMARY KEY,
-            ponto_dispensacao_id BIGINT NOT NULL,
+            id_ponto_dispensacao BIGINT NOT NULL,
             id_lote BIGINT NOT NULL,
             quantidade INT NOT NULL,
             data_hora_chegada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (ponto_dispensacao_id) REFERENCES public.ponto_dispensacao(id),
+            FOREIGN KEY (id_ponto_dispensacao) REFERENCES public.ponto_dispensacao(id),
             FOREIGN KEY (id_lote) REFERENCES public.lote(id)
             );
         </sql>
@@ -130,18 +130,36 @@
         <sql>
             CREATE TABLE public.historico_consumo (
             id BIGSERIAL PRIMARY KEY,
-            ponto_dispensacao_id BIGINT NOT NULL,
+            id_ponto_dispensacao BIGINT NOT NULL,
             id_lote_insumo BIGINT NOT NULL,
             quantidade INT NOT NULL,
             data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             id_user BIGINT,
-            FOREIGN KEY (ponto_dispensacao_id) REFERENCES public.ponto_dispensacao(id),
+            FOREIGN KEY (id_ponto_dispensacao) REFERENCES public.ponto_dispensacao(id),
             FOREIGN KEY (id_lote_insumo) REFERENCES public.lote(id)
             );
         </sql>
         <rollback>
             DROP TABLE public.historico_consumo;
             DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-historico-consumo';
+        </rollback>
+    </changeSet>
+
+    <changeSet id="criacao-tabela-historico-entrada" author="murillo.nacfur">
+        <sql>
+            CREATE TABLE public.historico_entrada (
+            id BIGSERIAL PRIMARY KEY,
+            id_ponto_dispensacao BIGINT NOT NULL,
+            id_lote BIGINT NOT NULL,
+            quantidade INT NOT NULL,
+            data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_ponto_dispensacao) REFERENCES public.ponto_dispensacao(id),
+            FOREIGN KEY (id_lote) REFERENCES public.lote(id)
+            );
+        </sql>
+        <rollback>
+            DROP TABLE public.historico_entrada;
+            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-historico-entrada';
         </rollback>
     </changeSet>
 
@@ -202,13 +220,12 @@
             DELETE FROM DATABASECHANGELOG WHERE ID = 'carga-inicial-dados';
         </rollback>
     </changeSet>
-    <changeSet id="tornar-cnes-unico" author="murillo.nacfur">
-        <sql>
-            ALTER TABLE public.ponto_dispensacao ADD CONSTRAINT uk_ponto_dispensacao_cnes UNIQUE (cnes);
-        </sql>
-        <rollback>
-            ALTER TABLE public.ponto_dispensacao DROP CONSTRAINT uk_ponto_dispensacao_cnes;
-            DELETE FROM DATABASECHANGELOG WHERE ID = 'tornar-cnes-unico';
-        </rollback>
+
+    <changeSet id="populacao-dados-predicao" author="murillo.nacfur" context="dev,test">
+        <sqlFile path="data/01_populacao_predicao.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="false"
+                 stripComments="false"/>
     </changeSet>
+
 </databaseChangeLog>

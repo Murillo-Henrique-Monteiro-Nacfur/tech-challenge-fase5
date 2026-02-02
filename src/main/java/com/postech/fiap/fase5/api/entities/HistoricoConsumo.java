@@ -20,7 +20,7 @@ public class HistoricoConsumo {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "ponto_dispensacao_id", nullable = false)
+    @JoinColumn(name = "id_ponto_dispensacao", nullable = false)
     private PontoDispensacao pontoDispensacao;
 
     @ManyToOne
@@ -32,7 +32,4 @@ public class HistoricoConsumo {
 
     @Column(name = "data_hora")
     private LocalDateTime dataHora;
-
-    @Column(name = "id_user")
-    private Long idUser;
 }

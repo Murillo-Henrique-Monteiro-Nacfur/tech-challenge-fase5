@@ -10,12 +10,12 @@
 
 ## 3. Inventário (LoteInventario)
 - [ ] **POST /inventario/entrada**: Adicionar itens ao lote de inventário de um ponto de dispensação.
-    - *Payload*: `ponto_dispensacao_id`, `id_lote`, `quantidade`.
-- [ ] **GET /inventario/{ponto_dispensacao_id}**: Consultar o inventário atual de um ponto de dispensação.
+    - *Payload*: `id_ponto_dispensacao`, `id_lote`, `quantidade`.
+- [ ] **GET /inventario/{id_ponto_dispensacao}**: Consultar o inventário atual de um ponto de dispensação.
 
 ## 4. Histórico de Consumo (HistoricoConsumo)
 - [ ] **POST /consumo**: Receber dados de consumo de medicamentos dos locais de distribuição.
-    - *Payload*: `ponto_dispensacao_id`, `id_lote_insumo`, `quantidade`, `data_hora`, `id_user`.
+    - *Payload*: `id_ponto_dispensacao`, `id_lote_insumo`, `quantidade`, `data_hora`, `id_user`.
     - *Nota*: O cliente enviará uma lista de dados.
 
 ## 5. Movimentações (Movimentacoes)
