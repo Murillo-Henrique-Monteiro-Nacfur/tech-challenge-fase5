@@ -18,9 +18,9 @@ Primeiro, vamos obter um token de acesso para o sistema da "Farmácia Central".
 TOKEN=$(curl -s -X POST http://localhost:8080/oauth2/token \\
   -H "Content-Type: application/json" \\
   -d '{
-    "client_id": "farmacia-central-app",
-    "client_secret": "secret",
-    "grant_type": "client_credentials"
+    "clientId": "farmacia-central-app",
+    "clientSecret": "secret",
+    "grantType": "client_credentials"
   }' | jq -r .access_token)
 
 # Verifique se o token foi gerado
@@ -86,32 +86,47 @@ curl -X POST http://localhost:8080/pontos-dispensacao \\
 Agora, vamos enviar uma carga de estoque para o Ponto de Dispensação que acabamos de criar (ID `1`).
 
 ```bash
-curl -X POST http://localhost:8080/estoque/carga \\
-  -H "Authorization: Bearer $TOKEN" \\
-  -H "Content-Type: application/json" \\
+curl -X POST http://localhost:8080/estoque/carga `
+  -H "Content-Type: application/json" `
+  -H "Authorization: Bearer $TOKEN" `
   -d '{
-    "dataCarga": "2026-01-24T18:00:00Z",
+    "cnesPontoDispensacao": "1234567",
+    "dataCarga": "2026-02-03T10:30:00",
     "itens": [
       {
-        "idInsumo": "34981",
-        "numeroLote": "DP-2025-01",
-        "dataValidade": "2026-12-31",
-        "dataFabricacao": "2025-01-01",
+        "idInsumo": "INS001",
+        "idLoteExterno": "LOTE-EXT-001",
+        "numeroLote": "L123456",
+        "dataValidade": "2027-12-31",
+        "dataFabricacao": "2026-01-15",
         "quantidadeEnviada": 100,
-        "quantidadeTotalLote": 5000
+        "quantidadeTotalLote": 500
       },
       {
-        "idInsumo": "34933",
-        "numeroLote": "PA-2024-05",
-        "dataValidade": "2025-10-31",
-        "dataFabricacao": "2024-05-01",
-        "quantidadeEnviada": 250,
-        "quantidadeTotalLote": 10000
+        "idInsumo": "INS002",
+        "idLoteExterno": "LOTE-EXT-002",
+        "numeroLote": "L789012",
+        "dataValidade": "2028-06-30",
+        "dataFabricacao": "2026-02-01",
+        "quantidadeEnviada": 50,
+        "quantidadeTotalLote": 200
       }
     ],
     "insumosDetalhes": [
-       { "id": "34981", "nome": "DIPIRONA SODICA", "formaFarmaceutica": "COMPRIMIDO" },
-       { "id": "34933", "nome": "PARACETAMOL", "formaFarmaceutica": "COMPRIMIDO" }
+      {
+        "id": "INS001",
+        "nome": "Paracetamol 500mg",
+        "formaFarmaceutica": "Comprimido",
+        "marca": "Marca A",
+        "descricao": "Analgésico e antipirético"
+      },
+      {
+        "id": "INS002",
+        "nome": "Dipirona 500mg",
+        "formaFarmaceutica": "Comprimido",
+        "marca": "Marca B",
+        "descricao": "Analgésico e antitérmico"
+      }
     ]
   }'
 ```
