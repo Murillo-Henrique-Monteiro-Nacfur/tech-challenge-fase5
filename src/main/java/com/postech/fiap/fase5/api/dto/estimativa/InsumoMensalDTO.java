@@ -9,19 +9,14 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class InventarioPontoDispensacaoInsumosDTO {
+public class InsumoMensalDTO {
+    // Dados Básicos do Insumo
     private Long idInsumo;
     private String nomeInsumo;
     private Integer quantidade;
     private List<InventarioPontoDispensacaoInsumosPorLoteDTO> lotes;
     
-    // Previsão baseada nos últimos 30 dias (Tendência Recente - Diária)
-    private Double consumoMedioDiario;
-    private Integer previsaoEsgotamentoDias;
-    private String statusPrevisao; // Ex: "CRÍTICO", "ALERTA", "NORMAL"
-    private List<SugestaoTransferenciaDTO> sugestoesTransferenciaImediata;
-
-    // Previsão baseada no próximo mês dos anos anteriores (Sazonalidade - Mensal)
+    // Dados Específicos Mensais/Sazonais
     private Double consumoMedioDiarioSazonal;
     private Integer previsaoEsgotamentoDiasSazonal;
     private String statusPrevisaoSazonal;
