@@ -3,7 +3,6 @@ package com.postech.fiap.fase5.api.usecases.authentication;
 import com.postech.fiap.fase5.api.dto.client.TokenRequest;
 import com.postech.fiap.fase5.api.dto.client.TokenResponse;
 import com.postech.fiap.fase5.api.entities.Client;
-import com.postech.fiap.fase5.api.repositories.ClientRepository;
 import com.postech.fiap.fase5.api.usecases.client.ClientReadUseCase;
 import com.postech.fiap.fase5.api.validations.client.ClientAuthenticationValidation;
 import com.postech.fiap.fase5.infrastructure.security.service.JwtService;
