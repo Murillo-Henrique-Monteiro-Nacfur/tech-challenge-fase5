@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +64,10 @@ public class CalculadoraPrevisaoMensalUseCase {
             diasRestantes = 999;
             status = "SEM_CONSUMO_PREVISTO";
         } else {
-            diasRestantes = (int) (insumoDTO.getQuantidade() / mediaDiariaSazonal);
+            // Correção: Considerar apenas estoque válido para o cálculo de cobertura
+            int estoqueValido = calcularEstoqueValido(insumoDTO.getLotes());
+            
+            diasRestantes = (int) (estoqueValido / mediaDiariaSazonal);
             if (diasRestantes <= 5) status = "CRITICO";
             else if (diasRestantes <= 15) status = "ALERTA";
             else status = "NORMAL";
@@ -88,14 +92,18 @@ public class CalculadoraPrevisaoMensalUseCase {
                 // Regra: Só doa se tiver estoque para mais de 30 dias
                 if (insumo.getPrevisaoEsgotamentoDiasSazonal() != null && insumo.getPrevisaoEsgotamentoDiasSazonal() > 30) {
 
+                    // 1. Calcula Estoque Transferível (Lotes com validade > 30 dias)
+                    int estoqueTransferivel = calcularEstoqueTransferivel(insumo.getLotes());
+
+                    // 2. Cálculo do Excedente Seguro: EstoqueTransferivel - (ConsumoDiarioSazonal * 30)
                     double consumo30Dias = (insumo.getConsumoMedioDiarioSazonal() != null ? insumo.getConsumoMedioDiarioSazonal() : 0.0) * 30.0;
-                    int excedente = (int) (insumo.getQuantidade() - consumo30Dias);
+                    int excedente = (int) (estoqueTransferivel - consumo30Dias);
 
                     if (excedente > 0) {
                         SugestaoTransferenciaDTO doador = SugestaoTransferenciaDTO.builder()
                                 .idPontoDoador(ponto.getPontoDispensacao().getId())
                                 .nomePontoDoador(ponto.getPontoDispensacao().getNome())
-                                .quantidadeDisponivelNoDoador(excedente) // Agora mostra apenas o que pode ser doado
+                                .quantidadeDisponivelNoDoador(excedente) // Agora mostra apenas o que pode ser doado (válido e excedente)
                                 .previsaoDiasDoador(insumo.getPrevisaoEsgotamentoDiasSazonal())
                                 .build();
                         mapaDoadores.computeIfAbsent(insumo.getIdInsumo(), k -> new ArrayList<>()).add(doador);
@@ -116,5 +124,27 @@ public class CalculadoraPrevisaoMensalUseCase {
                 }
             }
         }
+    }
+
+    private int calcularEstoqueValido(List<InventarioPontoDispensacaoInsumosPorLoteDTO> lotes) {
+        if (lotes == null || lotes.isEmpty()) return 0;
+
+        LocalDate hoje = LocalDate.now();
+
+        return lotes.stream()
+                .filter(lote -> lote.getDataValidade() != null && lote.getDataValidade().isAfter(hoje))
+                .mapToInt(InventarioPontoDispensacaoInsumosPorLoteDTO::getQuantidade)
+                .sum();
+    }
+
+    private int calcularEstoqueTransferivel(List<InventarioPontoDispensacaoInsumosPorLoteDTO> lotes) {
+        if (lotes == null || lotes.isEmpty()) return 0;
+        
+        LocalDate dataCorte = LocalDate.now().plusDays(30);
+        
+        return lotes.stream()
+                .filter(lote -> lote.getDataValidade() != null && lote.getDataValidade().isAfter(dataCorte))
+                .mapToInt(InventarioPontoDispensacaoInsumosPorLoteDTO::getQuantidade)
+                .sum();
     }
 }

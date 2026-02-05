@@ -60,7 +60,7 @@
         <sql>
             CREATE TABLE public.ponto_dispensacao (
             id BIGSERIAL PRIMARY KEY,
-            cnes VARCHAR(255),
+            cnes VARCHAR(255) UNIQUE NOT NULL,
             nome VARCHAR(255) NOT NULL,
             tipo VARCHAR(255) NOT NULL CHECK (tipo IN ('FARMACIA_CENTRAL', 'FARMACIA_MUNICIPAL', 'ALMOXARIFADO')),
             email_responsavel VARCHAR(255)
@@ -76,7 +76,7 @@
         <sql>
             CREATE TABLE public.insumo (
             id BIGSERIAL PRIMARY KEY,
-            codigo_catmat VARCHAR(255),
+            codigo_catmat VARCHAR(255) UNIQUE NOT NULL,
             nome_generico VARCHAR(255) NOT NULL,
             forma_farmaceutica VARCHAR(255),
             marca VARCHAR(255),
@@ -222,7 +222,7 @@
     </changeSet>
 
     <changeSet id="populacao-dados-predicao" author="murillo.nacfur" context="dev,test">
-        <sqlFile path="data/01_populacao_predicao.sql"
+        <sqlFile path="data/03_cenario_avaliacao_fevereiro_2026.sql"
                  relativeToChangelogFile="true"
                  splitStatements="false"
                  stripComments="false"/>

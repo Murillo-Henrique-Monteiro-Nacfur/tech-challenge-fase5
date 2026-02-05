@@ -57,6 +57,19 @@ public class NotificacaoService {
         }
     }
 
+    public void notificarRiscoValidade(List<AlertaValidadeDTO> alertas) {
+        for (AlertaValidadeDTO alerta : alertas) {
+            if (alerta.getPontoDispensacao().getEmailResponsavel() == null) continue;
+
+            String corpoEmail = montarCorpoEmailValidade(alerta.getPontoDispensacao().getNome(), alerta.getItensEmRisco());
+            emailService.sendEmail(
+                    alerta.getPontoDispensacao().getEmailResponsavel(),
+                    "[ALERTA DE VALIDADE] Risco de Perda de Estoque - " + LocalDate.now(),
+                    corpoEmail
+            );
+        }
+    }
+
     private String montarCorpoEmailDiario(String nomePonto, List<InsumoDiarioDTO> itens) {
         StringBuilder sb = new StringBuilder();
 
@@ -459,6 +472,30 @@ public class NotificacaoService {
             </html>
         """);
 
+        return sb.toString();
+    }
+
+    private String montarCorpoEmailValidade(String nomePonto, List<ItemRiscoValidadeDTO> itens) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Olá, responsável pelo ").append(nomePonto).append(".\n\n");
+        sb.append("ALERTA DE PREVENÇÃO DE PERDAS: Os seguintes lotes vencerão em breve e o consumo atual indica que haverá SOBRA (Desperdício).\n\n");
+
+        for (ItemRiscoValidadeDTO item : itens) {
+            sb.append("--------------------------------------------------\n");
+            if (item.getDiasParaVencer() <= 30) {
+                sb.append("[URGENTE - VENCE EM MENOS DE 30 DIAS]\n");
+            }
+            sb.append("INSUMO: ").append(item.getNomeInsumo()).append("\n");
+            sb.append("LOTE: ").append(item.getNumeroLote()).append("\n");
+            sb.append("VALIDADE: ").append(item.getDataValidade()).append(" (Faltam ").append(item.getDiasParaVencer()).append(" dias)\n");
+            sb.append("ESTOQUE ATUAL: ").append(item.getQuantidadeAtual()).append("\n");
+            sb.append("MÉDIA DE CONSUMO: ").append(String.format("%.2f", item.getConsumoMedioDiario())).append("/dia\n");
+            sb.append("DESPERDÍCIO PREVISTO: ").append(item.getQuantidadeDesperdicioPrevisto()).append(" unidades\n");
+            sb.append("\n");
+        }
+        
+        sb.append("--------------------------------------------------\n");
+        sb.append("Ação Recomendada: Priorizar uso destes lotes ou realizar transferência imediata.\n");
         return sb.toString();
     }
 }

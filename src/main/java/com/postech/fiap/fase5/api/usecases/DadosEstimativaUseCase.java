@@ -34,7 +34,7 @@ public class DadosEstimativaUseCase {
         // 1. Buscas Otimizadas (Apenas o necessário para o dia)
         List<PontoDispensacao> pontoDispensacaos = pontoDispensacaoRepository.findAll();
         List<LoteInventarioProjection> loteInventarioProjections = loteInventarioRepository.findAllLotePorInventario();
-        List<HistoricoConsumoPorDiaProjection> historicoDias = historicoConsumoRepository.buscaHistoricoPorDiaNosUltimosTrintaDias(LocalDateTime.now().minusDays(30));
+        List<HistoricoConsumoPorDiaProjection> historicoDias = historicoConsumoRepository.buscaHistoricoPorDiaNosUltimosTrintaDias(LocalDateTime.now().minusDays(30), LocalDateTime.now().plusDays(1));
 
         // 2. Agrupamentos
         Map<Long, List<LoteInventarioProjection>> lotesPorPontoMap = loteInventarioProjections.stream()
@@ -67,7 +67,8 @@ public class DadosEstimativaUseCase {
         // 1. Buscas Otimizadas (Apenas o necessário para o mês/sazonal)
         List<PontoDispensacao> pontoDispensacaos = pontoDispensacaoRepository.findAll();
         List<LoteInventarioProjection> loteInventarioProjections = loteInventarioRepository.findAllLotePorInventario();
-        List<HistoricoConsumoMesAnosAnterioresProjection> historicoAnos = historicoConsumoRepository.buscaHistoricoParaOProximoMesDosUltimosCincoAnos();
+        LocalDateTime mesQueVem = LocalDateTime.now().plusMonths(1);
+        List<HistoricoConsumoMesAnosAnterioresProjection> historicoAnos = historicoConsumoRepository.buscaHistoricoParaOProximoMesDosUltimosCincoAnos(mesQueVem.getMonthValue(), mesQueVem.getYear());
 
         // 2. Agrupamentos
         Map<Long, List<LoteInventarioProjection>> lotesPorPontoMap = loteInventarioProjections.stream()

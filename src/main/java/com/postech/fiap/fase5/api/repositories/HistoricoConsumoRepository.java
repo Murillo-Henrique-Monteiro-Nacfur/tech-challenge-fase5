@@ -23,7 +23,7 @@ public interface HistoricoConsumoRepository extends JpaRepository<HistoricoConsu
             FROM
                 HistoricoConsumo hc
             WHERE
-                (hc.dataHora >= :dataLimite AND hc.dataHora <= CURRENT_TIMESTAMP)
+                hc.dataHora >= :dataInicio AND hc.dataHora <= :dataFim
             GROUP BY
                 DATE(hc.dataHora),
                 hc.pontoDispensacao.id,
@@ -31,7 +31,11 @@ public interface HistoricoConsumoRepository extends JpaRepository<HistoricoConsu
             ORDER BY
                 dia DESC
            """)
-    List<HistoricoConsumoPorDiaProjection> buscaHistoricoPorDiaNosUltimosTrintaDias(@Param("dataLimite") LocalDateTime dataLimite);
+    List<HistoricoConsumoPorDiaProjection> buscaHistoricoPorDiaNosUltimosTrintaDias(
+            @Param("dataInicio") LocalDateTime dataInicio,
+            @Param("dataFim") LocalDateTime dataFim
+    );
+
     @Query("""
               SELECT
                  MONTH(hc.dataHora) AS mes,
@@ -42,8 +46,8 @@ public interface HistoricoConsumoRepository extends JpaRepository<HistoricoConsu
                 FROM
                  HistoricoConsumo hc
                 WHERE
-                 MONTH(hc.dataHora) = MONTH(CURRENT_DATE)
-                 AND YEAR(hc.dataHora) < YEAR(CURRENT_DATE)
+                 MONTH(hc.dataHora) = :mesAlvo
+                 AND YEAR(hc.dataHora) < :anoAtual
                 GROUP BY
                  YEAR(hc.dataHora),
                  MONTH(hc.dataHora),
@@ -52,5 +56,8 @@ public interface HistoricoConsumoRepository extends JpaRepository<HistoricoConsu
                 ORDER BY
                  ano DESC
            """)
-    List<HistoricoConsumoMesAnosAnterioresProjection> buscaHistoricoParaOProximoMesDosUltimosCincoAnos();
+    List<HistoricoConsumoMesAnosAnterioresProjection> buscaHistoricoParaOProximoMesDosUltimosCincoAnos(
+            @Param("mesAlvo") int mesAlvo,
+            @Param("anoAtual") int anoAtual
+    );
 }

@@ -91,15 +91,18 @@ public class CalculadoraPrevisaoDiariaUseCase {
                 // Regra: Só doa se tiver estoque para mais de 30 dias
                 if (insumo.getPrevisaoEsgotamentoDias() != null && insumo.getPrevisaoEsgotamentoDias() > 30) {
                     
-                    // Cálculo do Excedente Seguro: Estoque - (ConsumoDiario * 30)
+                    // 1. Calcula Estoque Transferível (Lotes com validade > 30 dias)
+                    int estoqueTransferivel = calcularEstoqueTransferivel(insumo.getLotes());
+
+                    // 2. Cálculo do Excedente Seguro: EstoqueTransferivel - (ConsumoDiario * 30)
                     double consumo30Dias = (insumo.getConsumoMedioDiario() != null ? insumo.getConsumoMedioDiario() : 0.0) * 30.0;
-                    int excedente = (int) (insumo.getQuantidade() - consumo30Dias);
+                    int excedente = (int) (estoqueTransferivel - consumo30Dias);
 
                     if (excedente > 0) {
                         SugestaoTransferenciaDTO doador = SugestaoTransferenciaDTO.builder()
                                 .idPontoDoador(ponto.getPontoDispensacao().getId())
                                 .nomePontoDoador(ponto.getPontoDispensacao().getNome())
-                                .quantidadeDisponivelNoDoador(excedente) // Agora mostra apenas o que pode ser doado
+                                .quantidadeDisponivelNoDoador(excedente) // Agora mostra apenas o que pode ser doado (válido e excedente)
                                 .previsaoDiasDoador(insumo.getPrevisaoEsgotamentoDias())
                                 .build();
                         mapaDoadores.computeIfAbsent(insumo.getIdInsumo(), k -> new ArrayList<>()).add(doador);
@@ -120,5 +123,16 @@ public class CalculadoraPrevisaoDiariaUseCase {
                 }
             }
         }
+    }
+
+    private int calcularEstoqueTransferivel(List<InventarioPontoDispensacaoInsumosPorLoteDTO> lotes) {
+        if (lotes == null || lotes.isEmpty()) return 0;
+        
+        LocalDate dataCorte = LocalDate.now().plusDays(30);
+        
+        return lotes.stream()
+                .filter(lote -> lote.getDataValidade() != null && lote.getDataValidade().isAfter(dataCorte))
+                .mapToInt(InventarioPontoDispensacaoInsumosPorLoteDTO::getQuantidade)
+                .sum();
     }
 }
