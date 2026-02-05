@@ -1,11 +1,13 @@
 package com.postech.fiap.fase5.api.services.email;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -24,16 +26,18 @@ public class SmtpEmailService implements EmailService {
         try {
             log.info("Enviando e-mail para: {}", to);
             
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(remetente);
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-            mailSender.send(message);
-            
+            helper.setFrom(remetente);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true); // true = HTML enabled
+
+            mailSender.send(mimeMessage);
+
             log.info("E-mail enviado com sucesso para: {}", to);
-        } catch (Exception e) {
+        } catch (MessagingException e) {
             log.error("Erro ao enviar e-mail para: {}", to, e);
             // Dependendo da regra de negócio, poderíamos relançar a exceção ou apenas logar
             // throw new RuntimeException("Falha no envio de e-mail", e);
