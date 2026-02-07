@@ -11,9 +11,21 @@ public class PontoDispensacaoDeleteUseCase {
     private final PontoDispensacaoRepository repository;
 
     public void execute(Long id) {
+        validateEntityExists(id);
+        deletePontoDispensacao(id);
+    }
+
+    private void validateEntityExists(Long id) {
         if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("Ponto de Dispensação não encontrado com ID: " + id);
+            throw buildEntityNotFoundException(id);
         }
+    }
+
+    private void deletePontoDispensacao(Long id) {
         repository.deleteById(id);
+    }
+
+    private IllegalArgumentException buildEntityNotFoundException(Long id) {
+        return new IllegalArgumentException("Ponto de Dispensação não encontrado com ID: " + id);
     }
 }

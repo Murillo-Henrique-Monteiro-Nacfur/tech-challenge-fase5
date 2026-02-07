@@ -4,6 +4,7 @@ import com.postech.fiap.fase5.api.dto.insumos.InsumoDTO;
 import com.postech.fiap.fase5.api.entities.Insumo;
 import com.postech.fiap.fase5.api.presenter.InsumoPresenter;
 import com.postech.fiap.fase5.api.repositories.InsumoRepository;
+import com.postech.fiap.fase5.infrastructure.exceptions.ApplicationNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,15 +16,22 @@ public class InsumoUpdateUseCase {
     private final InsumoPresenter insumoPresenter;
 
     public InsumoDTO execute(Long id, InsumoDTO insumoDTO) {
-        Insumo existingInsumo = insumoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Insumo não encontrado com ID: " + id));
+        Insumo existingInsumo = findInsumoById(id);
+        updateInsumoData(existingInsumo, insumoDTO);
+        Insumo updatedInsumo = insumoRepository.save(existingInsumo);
+        return insumoPresenter.toDto(updatedInsumo);
+    }
 
-        existingInsumo.setCodigoCatmat(insumoDTO.codigoCatmat());
-        existingInsumo.setNomeGenerico(insumoDTO.nomeGenerico());
-        existingInsumo.setFormaFarmaceutica(insumoDTO.formaFarmaceutica());
-        existingInsumo.setMarca(insumoDTO.marca());
-        existingInsumo.setDescricao(insumoDTO.descricao());
+    private Insumo findInsumoById(Long id) {
+        return insumoRepository.findById(id)
+                .orElseThrow(() -> new ApplicationNotFoundException("Insumo não encontrado com ID: " + id));
+    }
 
-        return insumoPresenter.toDto(insumoRepository.save(existingInsumo));
+    private void updateInsumoData(Insumo insumo, InsumoDTO dto) {
+        insumo.setCodigoCatmat(dto.codigoCatmat());
+        insumo.setNomeGenerico(dto.nomeGenerico());
+        insumo.setFormaFarmaceutica(dto.formaFarmaceutica());
+        insumo.setMarca(dto.marca());
+        insumo.setDescricao(dto.descricao());
     }
 }

@@ -27,7 +27,7 @@ public class AuthenticationUserController {
     @Operation(summary = "Authenticate a user and return a JWT")
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO loginRequestDTO) {
-        var token = userAuthenticationUseCase.authenticate(loginRequestDTO.getLogin(), loginRequestDTO.getPassword());
+        String token = userAuthenticationUseCase.execute(loginRequestDTO.getLogin(), loginRequestDTO.getPassword());
         return ResponseEntity.ok(loginPresenter.presentLoginSuccess(token));
     }
 }

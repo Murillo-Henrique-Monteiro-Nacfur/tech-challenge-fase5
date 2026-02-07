@@ -19,9 +19,17 @@ public class InsumoCreateUseCase {
     private final InsumoPresenter insumoPresenter;
 
     public InsumoDTO execute(InsumoDTO insumoDTO) {
-        createValidations.forEach(v -> v.validate(insumoDTO));
+        validateInsumoData(insumoDTO);
+        Insumo createdInsumo = createInsumo(insumoDTO);
+        return insumoPresenter.toDto(createdInsumo);
+    }
+
+    private void validateInsumoData(InsumoDTO insumoDTO) {
+        createValidations.forEach(validation -> validation.validate(insumoDTO));
+    }
+
+    private Insumo createInsumo(InsumoDTO insumoDTO) {
         Insumo insumo = insumoPresenter.toEntity(insumoDTO);
-        insumo = insumoRepository.save(insumo);
-        return insumoPresenter.toDto(insumo);
+        return insumoRepository.save(insumo);
     }
 }

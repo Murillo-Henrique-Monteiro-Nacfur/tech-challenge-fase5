@@ -19,9 +19,25 @@ public class PontoDispensacaoCreateUseCase {
     private final PontoDispensacaoPresenter presenter;
 
     public PontoDispensacaoDTO execute(PontoDispensacaoDTO dto) {
-        validations.forEach(v -> v.validate(dto));
-        PontoDispensacao entity = presenter.toEntity(dto);
-        entity = repository.save(entity);
+        validateDto(dto);
+        PontoDispensacao entity = createEntity(dto);
+        PontoDispensacao savedEntity = persistEntity(entity);
+        return convertToDto(savedEntity);
+    }
+
+    private void validateDto(PontoDispensacaoDTO dto) {
+        validations.forEach(validation -> validation.validate(dto));
+    }
+
+    private PontoDispensacao createEntity(PontoDispensacaoDTO dto) {
+        return presenter.toEntity(dto);
+    }
+
+    private PontoDispensacao persistEntity(PontoDispensacao entity) {
+        return repository.save(entity);
+    }
+
+    private PontoDispensacaoDTO convertToDto(PontoDispensacao entity) {
         return presenter.toDto(entity);
     }
 }

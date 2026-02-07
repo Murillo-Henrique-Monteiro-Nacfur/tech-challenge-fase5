@@ -16,9 +16,6 @@ public class ItemRiscoValidadeDTO {
     private LocalDate dataValidade;
     private Integer quantidadeAtual;
     private Double consumoMedioDiario;
-    
-    // O campo mais importante: quanto vai sobrar vencido
     private Integer quantidadeDesperdicioPrevisto;
-    
     private long diasParaVencer;
 }

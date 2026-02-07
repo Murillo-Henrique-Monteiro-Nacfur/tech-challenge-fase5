@@ -17,14 +17,25 @@ public class InsumoCreateUpdateUseCase {
     private final InsumoPresenter insumoPresenter;
 
     public void execute(List<InsumoDetalheDTO> insumosDetalhes) {
-        if (insumosDetalhes == null) return;
-
-        for (InsumoDetalheDTO dto : insumosDetalhes) {
-            // Verifica se já existe pelo ID externo (mapeado para codigoCatmat)
-            if (!insumoRepository.existsByCodigoCatmat(dto.id())) {
-                Insumo insumo = insumoPresenter.toEntity(dto);
-                insumoRepository.save(insumo);
-            }
+        if (isInvalidList(insumosDetalhes)) {
+            return;
         }
+
+        insumosDetalhes.stream()
+                .filter(this::isNewInsumo)
+                .forEach(this::createAndSaveInsumo);
+    }
+
+    private boolean isInvalidList(List<InsumoDetalheDTO> insumosDetalhes) {
+        return insumosDetalhes == null || insumosDetalhes.isEmpty();
+    }
+
+    private boolean isNewInsumo(InsumoDetalheDTO insumoDetalhe) {
+        return !insumoRepository.existsByCodigoCatmat(insumoDetalhe.id());
+    }
+
+    private void createAndSaveInsumo(InsumoDetalheDTO insumoDetalhe) {
+        Insumo insumo = insumoPresenter.toEntity(insumoDetalhe);
+        insumoRepository.save(insumo);
     }
 }

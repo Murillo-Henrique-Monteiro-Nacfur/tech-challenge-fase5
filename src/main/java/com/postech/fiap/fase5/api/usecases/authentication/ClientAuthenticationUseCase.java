@@ -16,27 +16,39 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClientAuthenticationUseCase {
 
-    private static final int EXPIRES_IN = 3600;
-    public static final String INVALID_CLIENT_ID_OR_CLIENT_SECRET = "Invalid client_id or client_secret";
+    private static final int TOKEN_EXPIRES_IN_SECONDS = 3600;
+    private static final String INVALID_CLIENT_CREDENTIALS_MESSAGE = "Invalid client_id or client_secret";
+
     private final ClientReadUseCase clientReadUseCase;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final List<ClientAuthenticationValidation> validations;
 
     public TokenResponse execute(TokenRequest request) {
-        validations.forEach(v -> v.validate(request));
-
-        Client client = clientReadUseCase.findByClientId(request.clientId());
-
-        validaCredenciais(request, client);
-
-        String token = jwtService.generateTokenForClient(client.getClientId(), client.getScopes());
-        return new TokenResponse(token, EXPIRES_IN);
+        validateRequest(request);
+        Client client = findClientByClientId(request);
+        verifyClientCredentials(request, client);
+        return generateTokenResponse(client);
     }
 
-    private void validaCredenciais(TokenRequest request, Client client) {
-        if (!passwordEncoder.matches(request.clientSecret(), client.getClientSecret())) {
-            throw new IllegalArgumentException(INVALID_CLIENT_ID_OR_CLIENT_SECRET);
+    private void validateRequest(TokenRequest request) {
+        validations.forEach(validation -> validation.validate(request));
+    }
+
+    private Client findClientByClientId(TokenRequest request) {
+        return clientReadUseCase.execute(request.clientId());
+    }
+
+    private void verifyClientCredentials(TokenRequest request, Client client) {
+        boolean credentialsMatch = passwordEncoder.matches(request.clientSecret(), client.getClientSecret());
+
+        if (!credentialsMatch) {
+            throw new IllegalArgumentException(INVALID_CLIENT_CREDENTIALS_MESSAGE);
         }
+    }
+
+    private TokenResponse generateTokenResponse(Client client) {
+        String token = jwtService.generateTokenForClient(client.getClientId(), client.getScopes());
+        return new TokenResponse(token, TOKEN_EXPIRES_IN_SECONDS);
     }
 }
