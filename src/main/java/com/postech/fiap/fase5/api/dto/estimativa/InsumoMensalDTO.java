@@ -10,13 +10,11 @@ import java.util.List;
 @Setter
 @Builder
 public class InsumoMensalDTO {
-    // Dados Básicos do Insumo
     private Long idInsumo;
     private String nomeInsumo;
     private Integer quantidade;
     private List<InventarioPontoDispensacaoInsumosPorLoteDTO> lotes;
-    
-    // Dados Específicos Mensais/Sazonais
+
     private Double consumoMedioDiarioSazonal;
     private Integer previsaoEsgotamentoDiasSazonal;
     private String statusPrevisaoSazonal;
