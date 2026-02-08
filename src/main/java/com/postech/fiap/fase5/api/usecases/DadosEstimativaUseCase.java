@@ -1,6 +1,9 @@
 package com.postech.fiap.fase5.api.usecases;
 
-import com.postech.fiap.fase5.api.dto.estimativa.*;
+import com.postech.fiap.fase5.api.dto.estimativa.HistoricoConsumoMesAnosAnterioresDTO;
+import com.postech.fiap.fase5.api.dto.estimativa.HistoricoConsumoPorDiaDTO;
+import com.postech.fiap.fase5.api.dto.estimativa.InventarioDiarioDTO;
+import com.postech.fiap.fase5.api.dto.estimativa.InventarioMensalDTO;
 import com.postech.fiap.fase5.api.entities.PontoDispensacao;
 import com.postech.fiap.fase5.api.repositories.HistoricoConsumoRepository;
 import com.postech.fiap.fase5.api.repositories.LoteInventarioRepository;
@@ -8,12 +11,16 @@ import com.postech.fiap.fase5.api.repositories.PontoDispensacaoRepository;
 import com.postech.fiap.fase5.api.repositories.projections.HistoricoConsumoMesAnosAnterioresProjection;
 import com.postech.fiap.fase5.api.repositories.projections.HistoricoConsumoPorDiaProjection;
 import com.postech.fiap.fase5.api.repositories.projections.LoteInventarioProjection;
+import com.postech.fiap.fase5.api.usecases.estimativa.builder.InventarioDiarioBuilder;
+import com.postech.fiap.fase5.api.usecases.estimativa.builder.InventarioMensalBuilder;
+import com.postech.fiap.fase5.api.usecases.estimativa.converter.HistoricoConsumoDiarioConverter;
+import com.postech.fiap.fase5.api.usecases.estimativa.converter.HistoricoConsumoMensalConverter;
+import com.postech.fiap.fase5.api.usecases.estimativa.provider.DataProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,120 +33,66 @@ public class DadosEstimativaUseCase {
     private final PontoDispensacaoRepository pontoDispensacaoRepository;
     private final LoteInventarioRepository loteInventarioRepository;
     private final HistoricoConsumoRepository historicoConsumoRepository;
+    private final InventarioDiarioBuilder inventarioDiarioBuilder;
+    private final InventarioMensalBuilder inventarioMensalBuilder;
+    private final HistoricoConsumoDiarioConverter historicoConsumoDiarioConverter;
+    private final HistoricoConsumoMensalConverter historicoConsumoMensalConverter;
+    private final DataProvider dataProvider;
 
-    // --- CENÁRIO DIÁRIO ---
     public List<InventarioDiarioDTO> executeDiaria() {
         log.info("Iniciando estimativa diária");
-        
-        // 1. Buscas Otimizadas (Apenas o necessário para o dia)
-        List<PontoDispensacao> pontoDispensacaos = pontoDispensacaoRepository.findAll();
-        List<LoteInventarioProjection> loteInventarioProjections = loteInventarioRepository.findAllLotePorInventario();
-        List<HistoricoConsumoPorDiaProjection> historicoDias = historicoConsumoRepository.buscaHistoricoPorDiaNosUltimosTrintaDias(LocalDateTime.now().minusDays(30), LocalDateTime.now().plusDays(1));
 
-        // 2. Agrupamentos
-        Map<Long, List<LoteInventarioProjection>> lotesPorPontoMap = loteInventarioProjections.stream()
-                .collect(Collectors.groupingBy(LoteInventarioProjection::getIdPontoDispensacao));
+        List<PontoDispensacao> pontosDispensacao = buscarPontosDispensacao();
+        Map<Long, List<LoteInventarioProjection>> lotesPorPontoMap = buscarEAgruparLotesPorPonto();
+        List<HistoricoConsumoPorDiaDTO> historicoConsumoDTOs = buscarHistoricoConsumoDiario();
 
-        List<HistoricoConsumoPorDiaDTO> historicoDiasDTOs = historicoDias.stream().map(e ->
-                HistoricoConsumoPorDiaDTO.builder().dia(e.getDia()).idPontoDispensacao(e.getIdPontoDispensacao()).idInsumo(e.getIdInsumo()).totalConsumo(e.getTotalConsumo()).build()).toList();
-
-        // 3. Montagem do DTO Diário
-        return pontoDispensacaos.stream().map(ponto -> {
-            List<LoteInventarioProjection> lotesDoPonto = lotesPorPontoMap.getOrDefault(ponto.getId(), Collections.emptyList());
-            List<InsumoDiarioDTO> insumosDTOs = processarInsumosDiario(lotesDoPonto);
-            
-            List<HistoricoConsumoPorDiaDTO> historicoPorPonto = historicoDiasDTOs.stream()
-                    .filter(hc -> hc.getIdPontoDispensacao().equals(ponto.getId()))
-                    .toList();
-
-            return InventarioDiarioDTO.builder()
-                    .pontoDispensacao(ponto)
-                    .insumos(insumosDTOs)
-                    .historicoConsumo(historicoPorPonto)
-                    .build();
-        }).toList();
+        return pontosDispensacao.stream()
+                .map(ponto -> inventarioDiarioBuilder.build(ponto, lotesPorPontoMap, historicoConsumoDTOs))
+                .toList();
     }
 
-    // --- CENÁRIO MENSAL ---
     public List<InventarioMensalDTO> executeMensal() {
         log.info("Iniciando estimativa mensal");
 
-        // 1. Buscas Otimizadas (Apenas o necessário para o mês/sazonal)
-        List<PontoDispensacao> pontoDispensacaos = pontoDispensacaoRepository.findAll();
-        List<LoteInventarioProjection> loteInventarioProjections = loteInventarioRepository.findAllLotePorInventario();
-        LocalDateTime mesQueVem = LocalDateTime.now().plusMonths(1);
-        List<HistoricoConsumoMesAnosAnterioresProjection> historicoAnos = historicoConsumoRepository.buscaHistoricoParaOProximoMesDosUltimosCincoAnos(mesQueVem.getMonthValue(), mesQueVem.getYear());
+        List<PontoDispensacao> pontosDispensacao = buscarPontosDispensacao();
+        Map<Long, List<LoteInventarioProjection>> lotesPorPontoMap = buscarEAgruparLotesPorPonto();
+        List<HistoricoConsumoMesAnosAnterioresDTO> historicoSazonalDTOs = buscarHistoricoConsumoMensal();
 
-        // 2. Agrupamentos
-        Map<Long, List<LoteInventarioProjection>> lotesPorPontoMap = loteInventarioProjections.stream()
+        return pontosDispensacao.stream()
+                .map(ponto -> inventarioMensalBuilder.build(ponto, lotesPorPontoMap, historicoSazonalDTOs))
+                .toList();
+    }
+
+    private List<PontoDispensacao> buscarPontosDispensacao() {
+        return pontoDispensacaoRepository.findAll();
+    }
+
+    private Map<Long, List<LoteInventarioProjection>> buscarEAgruparLotesPorPonto() {
+        return loteInventarioRepository.findAllLotePorInventario().stream()
                 .collect(Collectors.groupingBy(LoteInventarioProjection::getIdPontoDispensacao));
-
-        List<HistoricoConsumoMesAnosAnterioresDTO> historicoAnosDTOs = historicoAnos.stream().map(e ->
-                HistoricoConsumoMesAnosAnterioresDTO.builder().ano(e.getAno()).idPontoDispensacao(e.getIdPontoDispensacao()).idInsumo(e.getIdInsumo()).mes(e.getMes()).totalConsumo(e.getTotalConsumo()).build()).toList();
-
-        // 3. Montagem do DTO Mensal
-        return pontoDispensacaos.stream().map(ponto -> {
-            List<LoteInventarioProjection> lotesDoPonto = lotesPorPontoMap.getOrDefault(ponto.getId(), Collections.emptyList());
-            List<InsumoMensalDTO> insumosDTOs = processarInsumosMensal(lotesDoPonto);
-            
-            List<HistoricoConsumoMesAnosAnterioresDTO> historicoPorPonto = historicoAnosDTOs.stream()
-                    .filter(hc -> hc.getIdPontoDispensacao().equals(ponto.getId()))
-                    .toList();
-
-            return InventarioMensalDTO.builder()
-                    .pontoDispensacao(ponto)
-                    .insumos(insumosDTOs)
-                    .historicoSazonal(historicoPorPonto)
-                    .build();
-        }).toList();
     }
 
-    // --- MÉTODOS AUXILIARES ---
+    private List<HistoricoConsumoPorDiaDTO> buscarHistoricoConsumoDiario() {
+        LocalDateTime dataInicio = dataProvider.obterDataInicioHistoricoDiario();
+        LocalDateTime dataFim = dataProvider.obterDataFimHistoricoDiario();
 
-    private List<InsumoDiarioDTO> processarInsumosDiario(List<LoteInventarioProjection> lotesDoPonto) {
-        Map<Long, List<LoteInventarioProjection>> lotesPorInsumo = lotesDoPonto.stream()
-                .collect(Collectors.groupingBy(LoteInventarioProjection::getIdInsumo));
+        List<HistoricoConsumoPorDiaProjection> historicoProjections =
+                historicoConsumoRepository.buscaHistoricoPorDiaNosUltimosTrintaDias(dataInicio, dataFim);
 
-        return lotesPorInsumo.values().stream().map(listaLotes -> {
-            LoteInventarioProjection primeiro = listaLotes.get(0);
-            List<InventarioPontoDispensacaoInsumosPorLoteDTO> lotesDTOs = listaLotes.stream().map(this::converterParaLoteDTO).toList();
-            int quantidadeTotal = listaLotes.stream().mapToInt(LoteInventarioProjection::getQuantidade).sum();
-
-            return InsumoDiarioDTO.builder()
-                    .idInsumo(primeiro.getIdInsumo())
-                    .nomeInsumo(primeiro.getNomeInsumo())
-                    .quantidade(quantidadeTotal)
-                    .lotes(lotesDTOs)
-                    .build();
-        }).toList();
+        return historicoProjections.stream()
+                .map(historicoConsumoDiarioConverter::toDTO)
+                .toList();
     }
 
-    private List<InsumoMensalDTO> processarInsumosMensal(List<LoteInventarioProjection> lotesDoPonto) {
-        Map<Long, List<LoteInventarioProjection>> lotesPorInsumo = lotesDoPonto.stream()
-                .collect(Collectors.groupingBy(LoteInventarioProjection::getIdInsumo));
+    private List<HistoricoConsumoMesAnosAnterioresDTO> buscarHistoricoConsumoMensal() {
+        LocalDateTime proximoMes = dataProvider.obterProximoMes();
 
-        return lotesPorInsumo.values().stream().map(listaLotes -> {
-            LoteInventarioProjection primeiro = listaLotes.get(0);
-            List<InventarioPontoDispensacaoInsumosPorLoteDTO> lotesDTOs = listaLotes.stream().map(this::converterParaLoteDTO).toList();
-            int quantidadeTotal = listaLotes.stream().mapToInt(LoteInventarioProjection::getQuantidade).sum();
+        List<HistoricoConsumoMesAnosAnterioresProjection> historicoProjections =
+                historicoConsumoRepository.buscaHistoricoParaOProximoMesDosUltimosCincoAnos(
+                        proximoMes.getMonthValue(), proximoMes.getYear());
 
-            return InsumoMensalDTO.builder()
-                    .idInsumo(primeiro.getIdInsumo())
-                    .nomeInsumo(primeiro.getNomeInsumo())
-                    .quantidade(quantidadeTotal)
-                    .lotes(lotesDTOs)
-                    .build();
-        }).toList();
-    }
-
-    private InventarioPontoDispensacaoInsumosPorLoteDTO converterParaLoteDTO(LoteInventarioProjection e) {
-        return InventarioPontoDispensacaoInsumosPorLoteDTO.builder()
-                .idLote(e.getIdLote())
-                .idInsumo(e.getIdInsumo())
-                .nomeInsumo(e.getNomeInsumo())
-                .numeroLote(e.getNumeroLote())
-                .quantidade(e.getQuantidade())
-                .dataValidade(e.getDataValidade())
-                .build();
+        return historicoProjections.stream()
+                .map(historicoConsumoMensalConverter::toDTO)
+                .toList();
     }
 }
