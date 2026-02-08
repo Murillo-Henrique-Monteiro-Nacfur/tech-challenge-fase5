@@ -25,38 +25,65 @@ public class RegistrarConsumoUseCase {
     private final List<ConsumoValidation> validations;
 
     @Transactional
-    public void execute(RegistroConsumoDTO dto, Long clientId) {
-        // 1. Executar validações prévias (Segurança, Dados básicos)
-        validations.forEach(v -> v.validate(dto, clientId));
+    public void execute(RegistroConsumoDTO registroConsumo, Long clientId) {
+        executeValidations(registroConsumo, clientId);
+        PontoDispensacao pontoDispensacao = findPontoDispensacao(registroConsumo.pontoDispensacaoId());
+        processarItensConsumo(registroConsumo.listaConsumo(), pontoDispensacao);
+    }
 
-        // Recuperar o Ponto (já validado que existe e pertence ao cliente)
-        PontoDispensacao ponto = pontoDispensacaoRepository.findById(dto.pontoDispensacaoId())
+    private void executeValidations(RegistroConsumoDTO registroConsumo, Long clientId) {
+        validations.forEach(validation -> validation.validate(registroConsumo, clientId));
+    }
+
+    private PontoDispensacao findPontoDispensacao(Long pontoDispensacaoId) {
+        return pontoDispensacaoRepository.findById(pontoDispensacaoId)
                 .orElseThrow(() -> new IllegalArgumentException("Ponto de Dispensação não encontrado."));
+    }
 
-        // 2. Processar cada item
-        for (ItemConsumoDTO item : dto.listaConsumo()) {
-            // Buscar Lote no Inventário
-            LoteInventario inventario = loteInventarioRepository.findByPontoDispensacaoIdAndLoteId(ponto.getId(), item.loteId())
-                    .orElseThrow(() -> new IllegalArgumentException("Lote ID " + item.loteId() + " não encontrado no inventário deste ponto."));
+    private void processarItensConsumo(List<ItemConsumoDTO> itensConsumo, PontoDispensacao pontoDispensacao) {
+        itensConsumo.forEach(itemConsumo -> processarItemConsumo(itemConsumo, pontoDispensacao));
+    }
 
-            // Validar Saldo
-            if (inventario.getQuantidade() < item.quantidadeConsumida()) {
-                throw new IllegalArgumentException("Saldo insuficiente para o lote " + item.loteId() + ". Disponível: " + inventario.getQuantidade());
-            }
+    private void processarItemConsumo(ItemConsumoDTO itemConsumo, PontoDispensacao pontoDispensacao) {
+        LoteInventario loteInventario = findLoteInventario(pontoDispensacao.getId(), itemConsumo.loteId());
+        validarSaldoDisponivel(loteInventario, itemConsumo);
+        atualizarQuantidadeInventario(loteInventario, itemConsumo.quantidadeConsumida());
+        registrarHistoricoConsumo(pontoDispensacao, loteInventario, itemConsumo);
+    }
 
-            // Atualizar Inventário
-            inventario.setQuantidade(inventario.getQuantidade() - item.quantidadeConsumida());
-            loteInventarioRepository.save(inventario);
+    private LoteInventario findLoteInventario(Long pontoDispensacaoId, Long loteId) {
+        return loteInventarioRepository.findByPontoDispensacaoIdAndLoteId(pontoDispensacaoId, loteId)
+                .orElseThrow(() -> new IllegalArgumentException("Lote ID " + loteId + " não encontrado no inventário deste ponto."));
+    }
 
-            // Registrar Histórico
-            HistoricoConsumo historico = new HistoricoConsumo();
-            historico.setPontoDispensacao(ponto);
-            historico.setLote(inventario.getLote());
-            historico.setQuantidade(item.quantidadeConsumida());
-            historico.setDataHora(item.dataHoraEvento());
-            // historico.setIdUser(???); // Se tiver usuário logado no sistema da farmácia, poderia vir no DTO. Por enquanto null ou do token se fosse user pessoa.
-            
-            historicoConsumoRepository.save(historico);
+    private void validarSaldoDisponivel(LoteInventario loteInventario, ItemConsumoDTO itemConsumo) {
+        boolean saldoInsuficiente = loteInventario.getQuantidade() < itemConsumo.quantidadeConsumida();
+        if (saldoInsuficiente) {
+            throw new IllegalArgumentException("Saldo insuficiente para o lote " + itemConsumo.loteId() + ". Disponível: " + loteInventario.getQuantidade());
         }
+    }
+
+    private void atualizarQuantidadeInventario(LoteInventario loteInventario, Integer quantidadeConsumida) {
+        int novaQuantidade = loteInventario.getQuantidade() - quantidadeConsumida;
+        loteInventario.setQuantidade(novaQuantidade);
+        loteInventarioRepository.save(loteInventario);
+    }
+
+    private void registrarHistoricoConsumo(PontoDispensacao pontoDispensacao,
+                                           LoteInventario loteInventario,
+                                           ItemConsumoDTO itemConsumo) {
+        HistoricoConsumo historicoConsumo = criarHistoricoConsumo(pontoDispensacao, loteInventario, itemConsumo);
+        historicoConsumoRepository.save(historicoConsumo);
+    }
+
+    private HistoricoConsumo criarHistoricoConsumo(PontoDispensacao pontoDispensacao,
+                                                   LoteInventario loteInventario,
+                                                   ItemConsumoDTO itemConsumo) {
+        HistoricoConsumo historicoConsumo = new HistoricoConsumo();
+        historicoConsumo.setPontoDispensacao(pontoDispensacao);
+        historicoConsumo.setLote(loteInventario.getLote());
+        historicoConsumo.setQuantidade(itemConsumo.quantidadeConsumida());
+        historicoConsumo.setDataHora(itemConsumo.dataHoraEvento());
+        return historicoConsumo;
     }
 }
