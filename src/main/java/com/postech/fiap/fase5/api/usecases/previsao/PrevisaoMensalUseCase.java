@@ -17,15 +17,12 @@ public class PrevisaoMensalUseCase {
     private final NotificacaoService notificacaoService;
 
     public List<InventarioMensalDTO> execute() {
-        // 1. Busca dados brutos otimizados para o mensal
         var dados = dadosEstimativaUseCase.executeMensal();
 
-        // 2. Aplica inteligência mensal
         var resultado = calculadoraPrevisaoMensalUseCase.execute(dados);
-        
-        // 3. Notifica responsáveis se houver risco sazonal
+
         notificacaoService.notificarPrevisaoMensal(resultado);
-        
+
         return resultado;
     }
 }
