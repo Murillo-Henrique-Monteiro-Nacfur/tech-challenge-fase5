@@ -13,7 +13,7 @@ public class PrevisaoMensalScheduler {
 
     private final PrevisaoMensalUseCase previsaoMensalUseCase;
 
-    @Scheduled(cron = "0 0 2 1 * *")
+    @Scheduled(cron = "0 0 0 1 * *")
     public void executarPrevisaoMensal() {
         log.info("Iniciando execucao da previsao mensal");
         var resultado = previsaoMensalUseCase.execute();

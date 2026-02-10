@@ -26,9 +26,8 @@ public class EstoqueMovimentacaoUseCase {
                     return novo;
                 });
 
-        // Soma a quantidade recebida ao saldo atual
         inventario.setQuantidade(inventario.getQuantidade() + quantidadeEnviada);
-        inventario.setDataHoraChegada(LocalDateTime.now()); // Atualiza data da última movimentação
+        inventario.setDataHoraChegada(LocalDateTime.now());
         loteInventarioRepository.save(inventario);
     }
 }

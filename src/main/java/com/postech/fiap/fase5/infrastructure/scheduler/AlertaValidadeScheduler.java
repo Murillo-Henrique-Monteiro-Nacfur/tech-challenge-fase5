@@ -13,7 +13,7 @@ public class AlertaValidadeScheduler {
 
     private final AlertaValidadeUseCase alertaValidadeUseCase;
 
-    @Scheduled(cron = "0 0 2 * * *")
+    @Scheduled(cron = "0 0 6 * * 1")
     public void executarAlertaValidade() {
         log.info("Iniciando execucao do alerta de validade");
         var resultado = alertaValidadeUseCase.execute();

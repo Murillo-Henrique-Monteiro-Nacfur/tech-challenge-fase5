@@ -56,7 +56,7 @@ public interface HistoricoConsumoRepository extends JpaRepository<HistoricoConsu
                 ORDER BY
                  ano DESC
            """)
-    List<HistoricoConsumoMesAnosAnterioresProjection> buscaHistoricoParaOProximoMesDosUltimosCincoAnos(
+    List<HistoricoConsumoMesAnosAnterioresProjection> buscaHistoricoParaOMesDosUltimosCincoAnos(
             @Param("mesAlvo") int mesAlvo,
             @Param("anoAtual") int anoAtual
     );

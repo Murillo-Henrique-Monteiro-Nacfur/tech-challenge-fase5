@@ -88,7 +88,7 @@ public class DadosEstimativaUseCase {
         LocalDateTime proximoMes = dataProvider.obterProximoMes();
 
         List<HistoricoConsumoMesAnosAnterioresProjection> historicoProjections =
-                historicoConsumoRepository.buscaHistoricoParaOProximoMesDosUltimosCincoAnos(
+                historicoConsumoRepository.buscaHistoricoParaOMesDosUltimosCincoAnos(
                         proximoMes.getMonthValue(), proximoMes.getYear());
 
         return historicoProjections.stream()

@@ -11,5 +11,5 @@ public class SugestaoTransferenciaDTO {
     private Long idPontoDoador;
     private String nomePontoDoador;
     private Integer quantidadeDisponivelNoDoador;
-    private Integer previsaoDiasDoador; // Para mostrar quão "confortável" o doador está
+    private Integer previsaoDiasDoador;
 }

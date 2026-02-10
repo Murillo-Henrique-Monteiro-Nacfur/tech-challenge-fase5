@@ -21,20 +21,15 @@ public class ProcessarCargaEstoqueUseCase {
 
     @Transactional
     public void execute(CargaEstoqueDTO cargaDTO, Long clientId) {
-        // 1. Segurança: Identificar o Ponto de Dispensação pelo Client ID do token
         PontoDispensacao ponto = pontoDispensacaoRepository.findByClientIdAndCnes(clientId, cargaDTO.cnesPontoDispensacao())
                 .orElseThrow(() -> new SecurityException("Cliente não possui Ponto de Dispensação vinculado."));
 
-        // 2. Processar Insumos (Garantir cadastro)
         insumoCreateUpdateUseCase.execute(cargaDTO.insumosDetalhes());
 
-        // 3. Processar Itens (Lotes e Estoque)
         if (cargaDTO.itens() != null) {
             for (ItemCargaDTO item : cargaDTO.itens()) {
-                // Garante/Cria o Lote Mestre
                 Lote lote = loteCreateUpdateUseCase.execute(item);
 
-                // Atualiza o Estoque no Ponto
                 estoqueMovimentacaoUseCase.execute(ponto, lote, item.quantidadeEnviada());
             }
         }
