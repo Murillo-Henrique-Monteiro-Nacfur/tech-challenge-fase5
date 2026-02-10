@@ -5,41 +5,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="criacao-tabela-usuario" author="murillo.nacfur">
-        <sql>
-            CREATE TABLE public.users (
-            id BIGSERIAL NOT NULL,
-            name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            login VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            birth_date DATE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id)
-            );
-        </sql>
-        <rollback>
-            DROP TABLE public.users;
-            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-usuario';
-        </rollback>
-    </changeSet>
-
-    <changeSet id="criacao-tabela-user-roles" author="murillo.nacfur">
-        <sql>
-            CREATE TABLE public.user_role (
-            id BIGSERIAL PRIMARY KEY,
-            user_id BIGINT NOT NULL,
-            role VARCHAR(255) NOT NULL CHECK (role IN ('ADMIN','CLIENT')),
-            FOREIGN KEY (user_id) REFERENCES public.users(id)
-            );
-        </sql>
-        <rollback>
-            DROP TABLE public.user_role;
-            DELETE FROM DATABASECHANGELOG WHERE ID = 'criacao-tabela-user-roles';
-        </rollback>
-    </changeSet>
-
     <changeSet id="criacao-tabela-clients" author="murillo.nacfur">
         <sql>
             CREATE TABLE public.clients (
@@ -98,7 +63,6 @@
             data_validade DATE,
             data_fabricacao DATE,
             quantidade INT,
-            id_user BIGINT,
             FOREIGN KEY (insumo_id) REFERENCES public.insumo(id)
             );
         </sql>
@@ -134,7 +98,6 @@
             id_lote_insumo BIGINT NOT NULL,
             quantidade INT NOT NULL,
             data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            id_user BIGINT,
             FOREIGN KEY (id_ponto_dispensacao) REFERENCES public.ponto_dispensacao(id),
             FOREIGN KEY (id_lote_insumo) REFERENCES public.lote(id)
             );
@@ -172,7 +135,6 @@
             id_lote BIGINT NOT NULL,
             quantidade INT NOT NULL,
             data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            id_user BIGINT,
             FOREIGN KEY (ponto_dispensacao_origem_id) REFERENCES public.ponto_dispensacao(id),
             FOREIGN KEY (ponto_dispensacao_destino_id) REFERENCES public.ponto_dispensacao(id),
             FOREIGN KEY (id_lote) REFERENCES public.lote(id)
@@ -198,31 +160,18 @@
 
     <changeSet id="carga-inicial-dados" author="murillo.nacfur">
         <sql>
-            -- Inserir Usuário Admin (se não existir)
-            INSERT INTO public.users (name, email, login, password, birth_date, created_at, updated_at)
-            VALUES ('Admin User', 'admin@sus.gov.br', 'admin_sus', '$2a$10$KkUrgvp0fZ8VURE6zz3gRur47uwgdCeirCdOA0xvt8oS2rPJmFXom', '1980-01-01', NOW(), NOW())
-            ON CONFLICT (login) DO NOTHING;
-
-            -- Inserir Role Admin
-            INSERT INTO public.user_role (user_id, role)
-            SELECT id, 'ADMIN' FROM public.users WHERE login = 'admin_sus'
-            AND NOT EXISTS (SELECT 1 FROM public.user_role WHERE user_id = public.users.id AND role = 'ADMIN');
-
-            -- Inserir Client (Sistema Farmácia Central)
             INSERT INTO public.clients (client_id, client_secret, name, scopes)
-            VALUES ('farmacia-central-app', '$2a$10$KkUrgvp0fZ8VURE6zz3gRur47uwgdCeirCdOA0xvt8oS2rPJmFXom', 'Sistema Farmácia Central', 'read write')
+            VALUES ('farmacia-central-app', '$2a$10$Lx2CkUKd01rrfHReMIR4du/1kA.RZZLgSFyAZ8rpWU0SE/Ep.JhK.', 'Sistema Farmácia Central', 'read write')
             ON CONFLICT (client_id) DO NOTHING;
         </sql>
         <rollback>
             DELETE FROM public.clients WHERE client_id = 'farmacia-central-app';
-            DELETE FROM public.user_role WHERE user_id = (SELECT id FROM public.users WHERE login = 'admin_sus');
-            DELETE FROM public.users WHERE login = 'admin_sus';
             DELETE FROM DATABASECHANGELOG WHERE ID = 'carga-inicial-dados';
         </rollback>
     </changeSet>
 
     <changeSet id="populacao-dados-predicao" author="murillo.nacfur" context="dev,test">
-        <sqlFile path="data/03_cenario_avaliacao_fevereiro_2026.sql"
+        <sqlFile path="data/01_cenario_avaliacao_fevereiro_2026.sql"
                  relativeToChangelogFile="true"
                  splitStatements="false"
                  stripComments="false"/>

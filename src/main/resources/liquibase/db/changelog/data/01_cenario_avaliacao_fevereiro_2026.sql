@@ -22,7 +22,8 @@ INSERT INTO public.insumo (codigo_catmat, nome_generico, forma_farmaceutica, mar
 VALUES 
 ('TEST001', 'DIPIRONA TESTE (DIARIO)', 'COMPRIMIDO', 'LabTest', 'Teste Diário'),
 ('TEST002', 'ANTIALERGICO TESTE (SAZONAL)', 'XAROPE', 'SazonalLab', 'Teste Sazonal'),
-('TEST003', 'VITAMINA C TESTE (VALIDADE)', 'EFERVESCENTE', 'VitaTest', 'Teste Validade')
+('TEST003', 'VITAMINA C TESTE (VALIDADE)', 'EFERVESCENTE', 'VitaTest', 'Teste Validade'),
+('TEST004', 'IBUPROFENO TESTE (VALIDADE HOJE)', 'COMPRIMIDO', 'IbuLab', 'Teste Validade Dinâmica')
 ON CONFLICT (codigo_catmat) DO NOTHING;
 
 
@@ -34,13 +35,12 @@ ON CONFLICT (codigo_catmat) DO NOTHING;
 -- ============================================================================
 
 -- A.1 Lotes
-INSERT INTO public.lote (numero_lote, insumo_id, data_validade, data_fabricacao, quantidade, id_user) VALUES 
-('LOTE-DIP-CRIT', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST001'), '2027-01-01', '2025-01-01', 1000, 1),
-('LOTE-DIP-DOAD', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST001'), '2027-01-01', '2025-01-01', 5000, 1),
-('LOTE-DIP-JUST', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST001'), '2027-01-01', '2025-01-01', 1000, 1);
+INSERT INTO public.lote (numero_lote, insumo_id, data_validade, data_fabricacao, quantidade) VALUES 
+('LOTE-DIP-CRIT', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST001'), '2027-01-01', '2025-01-01', 1000),
+('LOTE-DIP-DOAD', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST001'), '2027-01-01', '2025-01-01', 5000),
+('LOTE-DIP-JUST', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST001'), '2027-01-01', '2025-01-01', 1000);
 
 -- A.2 Entradas Iniciais (Jan/2026)
--- REMOVIDO id_user POIS A TABELA historico_entrada NÃO POSSUI ESSA COLUNA
 INSERT INTO public.historico_entrada (id_ponto_dispensacao, id_lote, quantidade, data_hora) VALUES 
 ((SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880001'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-DIP-CRIT'), 650, '2026-01-01 08:00:00'),
 ((SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880002'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-DIP-DOAD'), 2500, '2026-01-01 08:00:00'),
@@ -48,18 +48,18 @@ INSERT INTO public.historico_entrada (id_ponto_dispensacao, id_lote, quantidade,
 
 -- A.3 Consumo Recente (Jan e Fev 2026)
 -- Crítico (20/dia)
-INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora, id_user)
-SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880001'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-DIP-CRIT'), 20, d + time '10:00:00', 1
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880001'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-DIP-CRIT'), 20, d + time '10:00:00'
 FROM generate_series('2026-01-25'::timestamp, '2026-02-24'::timestamp, '1 day') AS d;
 
 -- Doador (10/dia)
-INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora, id_user)
-SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880002'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-DIP-DOAD'), 10, d + time '10:00:00', 1
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880002'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-DIP-DOAD'), 10, d + time '10:00:00'
 FROM generate_series('2026-01-25'::timestamp, '2026-02-24'::timestamp, '1 day') AS d;
 
 -- Justo (10/dia)
-INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora, id_user)
-SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880004'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-DIP-JUST'), 10, d + time '10:00:00', 1
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880004'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-DIP-JUST'), 10, d + time '10:00:00'
 FROM generate_series('2026-01-25'::timestamp, '2026-02-24'::timestamp, '1 day') AS d;
 
 
@@ -71,47 +71,46 @@ FROM generate_series('2026-01-25'::timestamp, '2026-02-24'::timestamp, '1 day') 
 -- ============================================================================
 
 -- B.1 Lote (Compartilhado para simplificar, mas com entradas separadas)
-INSERT INTO public.lote (numero_lote, insumo_id, data_validade, data_fabricacao, quantidade, id_user)
-VALUES ('LOTE-SAZ-001', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST002'), '2028-01-01', '2025-01-01', 10000, 1);
+INSERT INTO public.lote (numero_lote, insumo_id, data_validade, data_fabricacao, quantidade)
+VALUES ('LOTE-SAZ-001', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST002'), '2028-01-01', '2025-01-01', 10000);
 
 -- Lote Exclusivo para Histórico (Para não consumir o saldo do lote atual)
-INSERT INTO public.lote (numero_lote, insumo_id, data_validade, data_fabricacao, quantidade, id_user)
-VALUES ('LOTE-SAZ-HIST', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST002'), '2025-01-01', '2020-01-01', 100000, 1);
+INSERT INTO public.lote (numero_lote, insumo_id, data_validade, data_fabricacao, quantidade)
+VALUES ('LOTE-SAZ-HIST', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST002'), '2025-01-01', '2020-01-01', 100000);
 
 -- B.2 Entradas (Estoque Atual em 25/02/2026)
--- REMOVIDO id_user
 INSERT INTO public.historico_entrada (id_ponto_dispensacao, id_lote, quantidade, data_hora) VALUES 
 ((SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880001'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-001'), 130, '2026-01-01 08:00:00'), -- Crítico (sobra 100 após consumo recente)
 ((SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880002'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-001'), 2060, '2026-01-01 08:00:00'), -- Doador (sobra 2000)
 ((SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880004'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-001'), 330, '2026-01-01 08:00:00'); -- Justo (sobra 300)
 
 -- B.3 Consumo Recente (Jan/Fev 2026) - Baixo para todos (Engana a previsão diária)
-INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora, id_user)
-SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880001'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-001'), 1, d + time '12:00:00', 1
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880001'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-001'), 1, d + time '12:00:00'
 FROM generate_series('2026-01-25'::timestamp, '2026-02-24'::timestamp, '1 day') AS d;
 
-INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora, id_user)
-SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880002'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-001'), 2, d + time '12:00:00', 1
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880002'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-001'), 2, d + time '12:00:00'
 FROM generate_series('2026-01-25'::timestamp, '2026-02-24'::timestamp, '1 day') AS d;
 
-INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora, id_user)
-SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880004'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-001'), 1, d + time '12:00:00', 1
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880004'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-001'), 1, d + time '12:00:00'
 FROM generate_series('2026-01-25'::timestamp, '2026-02-24'::timestamp, '1 day') AS d;
 
 -- B.4 Histórico Sazonal (Março de 2022, 2023, 2024, 2025)
 -- Crítico: Alto (50/dia)
-INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora, id_user)
-SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880001'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-HIST'), 50, d + time '14:00:00', 1
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880001'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-HIST'), 50, d + time '14:00:00'
 FROM generate_series('2022-03-01'::timestamp, '2025-03-31'::timestamp, '1 day') AS d WHERE extract(month from d) = 3;
 
 -- Doador: Baixo (2/dia) -> Garante que ele é um doador seguro
-INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora, id_user)
-SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880002'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-HIST'), 2, d + time '14:00:00', 1
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880002'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-HIST'), 2, d + time '14:00:00'
 FROM generate_series('2022-03-01'::timestamp, '2025-03-31'::timestamp, '1 day') AS d WHERE extract(month from d) = 3;
 
 -- Justo: Médio (10/dia) -> Garante que ele consome o que tem (300 estoque / 10 dia = 30 dias). Excedente = 0.
-INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora, id_user)
-SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880004'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-HIST'), 10, d + time '14:00:00', 1
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880004'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-SAZ-HIST'), 10, d + time '14:00:00'
 FROM generate_series('2022-03-01'::timestamp, '2025-03-31'::timestamp, '1 day') AS d WHERE extract(month from d) = 3;
 
 
@@ -119,18 +118,35 @@ FROM generate_series('2022-03-01'::timestamp, '2025-03-31'::timestamp, '1 day') 
 -- CENÁRIO C: ALERTA DE VALIDADE (VITAMINA C - TEST003)
 -- ============================================================================
 -- C.1 Lote Vencendo
-INSERT INTO public.lote (numero_lote, insumo_id, data_validade, data_fabricacao, quantidade, id_user)
-VALUES ('LOTE-VENC-001', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST003'), '2026-04-10', '2024-04-10', 1000, 1);
+INSERT INTO public.lote (numero_lote, insumo_id, data_validade, data_fabricacao, quantidade)
+VALUES ('LOTE-VENC-001', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST003'), '2026-04-10', '2024-04-10', 1000);
 
 -- C.2 Entrada
--- REMOVIDO id_user
 INSERT INTO public.historico_entrada (id_ponto_dispensacao, id_lote, quantidade, data_hora)
 VALUES ((SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880003'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-VENC-001'), 560, '2026-01-01 08:00:00');
 
 -- C.3 Consumo Recente (Baixo)
-INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora, id_user)
-SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880003'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-VENC-001'), 2, d + time '15:00:00', 1
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880003'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-VENC-001'), 2, d + time '15:00:00'
 FROM generate_series('2026-01-25'::timestamp, '2026-02-24'::timestamp, '1 day') AS d;
+
+
+-- ============================================================================
+-- CENÁRIO D: ALERTA DE VALIDADE DINÂMICO (IBUPROFENO - TEST004)
+-- Funciona em qualquer data (HOJE)
+-- ============================================================================
+-- D.1 Lote Vencendo em 45 dias a partir de HOJE
+INSERT INTO public.lote (numero_lote, insumo_id, data_validade, data_fabricacao, quantidade)
+VALUES ('LOTE-VENC-HOJE', (SELECT id FROM public.insumo WHERE codigo_catmat = 'TEST004'), CURRENT_DATE + INTERVAL '45 days', CURRENT_DATE - INTERVAL '365 days', 1000);
+
+-- D.2 Entrada (30 dias atrás)
+INSERT INTO public.historico_entrada (id_ponto_dispensacao, id_lote, quantidade, data_hora)
+VALUES ((SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880003'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-VENC-HOJE'), 560, (CURRENT_DATE - INTERVAL '30 days')::timestamp);
+
+-- D.3 Consumo Recente (Últimos 30 dias)
+INSERT INTO public.historico_consumo (id_ponto_dispensacao, id_lote_insumo, quantidade, data_hora)
+SELECT (SELECT id FROM public.ponto_dispensacao WHERE cnes = '8880003'), (SELECT id FROM public.lote WHERE numero_lote = 'LOTE-VENC-HOJE'), 2, d + time '15:00:00'
+FROM generate_series((CURRENT_DATE - INTERVAL '29 days')::timestamp, (CURRENT_DATE - INTERVAL '1 day')::timestamp, '1 day') AS d;
 
 
 -- ============================================================================

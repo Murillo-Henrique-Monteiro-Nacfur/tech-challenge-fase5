@@ -23,17 +23,20 @@ public class TesteController implements PontoDispensacaoControllerSwagger {
     private final AlertaValidadeUseCase alertaValidadeUseCase;
 
     @GetMapping("/diaria")
-    public ResponseEntity<List<InventarioDiarioDTO>> previsaoDiaria() {
-        return ResponseEntity.ok(previsaoDiariaUseCase.execute());
+    public ResponseEntity<Void> previsaoDiaria() {
+        previsaoDiariaUseCase.execute();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/mensal")
-    public ResponseEntity<List<InventarioMensalDTO>> previsaoMensal() {
-        return ResponseEntity.ok(previsaoMensalUseCase.execute());
+    public ResponseEntity<Void> previsaoMensal() {
+        previsaoMensalUseCase.execute();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/validade")
-    public ResponseEntity<List<AlertaValidadeDTO>> alertaValidade() {
-        return ResponseEntity.ok(alertaValidadeUseCase.execute());
+    public ResponseEntity<Void> alertaValidade() {
+        alertaValidadeUseCase.execute();
+        return ResponseEntity.ok().build();
     }
 }
