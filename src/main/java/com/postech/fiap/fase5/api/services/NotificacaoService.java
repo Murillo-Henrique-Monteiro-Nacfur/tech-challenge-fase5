@@ -477,25 +477,187 @@ public class NotificacaoService {
 
     private String montarCorpoEmailValidade(String nomePonto, List<ItemRiscoValidadeDTO> itens) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Olá, responsável pelo ").append(nomePonto).append(".\n\n");
-        sb.append("ALERTA DE PREVENÇÃO DE PERDAS: Os seguintes lotes vencerão em breve e o consumo atual indica que haverá SOBRA (Desperdício).\n\n");
+
+        sb.append("""
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 700px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #ff6f00 0%, #e65100 100%); padding: 30px 40px; border-radius: 8px 8px 0 0;">
+                            <table width="100%">
+                                <tr>
+                                    <td>
+                                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">
+                                            ⏰ Alerta de Validade
+                                        </h1>
+                                        <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">
+                                            Prevenção de Perdas - Sistema de Gestão de Insumos
+                                        </p>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <span style="color: rgba(255,255,255,0.8); font-size: 13px;">
+            """);
+        sb.append("                            ").append(LocalDate.now()).append("\n");
+        sb.append("""
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="color: #333333; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                                Prezado(a) responsável pelo <strong style="color: #e65100;">
+            """);
+        sb.append(nomePonto);
+        sb.append("""
+                </strong>,
+                            </p>
+                            
+                            <p style="color: #555555; font-size: 15px; line-height: 1.6; margin: 0 0 30px 0;">
+                                Identificamos <strong>lotes com risco de perda por validade</strong>. O consumo atual indica que haverá 
+                                <strong style="color: #d32f2f;">desperdício</strong> se nenhuma ação for tomada. Por favor, revise os itens abaixo.
+                            </p>
+                            
+                            <!-- Items Table -->
+                            <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 30px;">
+            """);
 
         for (ItemRiscoValidadeDTO item : itens) {
-            sb.append("--------------------------------------------------\n");
-            if (item.getDiasParaVencer() <= 30) {
-                sb.append("[URGENTE - VENCE EM MENOS DE 30 DIAS]\n");
-            }
-            sb.append("INSUMO: ").append(item.getNomeInsumo()).append("\n");
-            sb.append("LOTE: ").append(item.getNumeroLote()).append("\n");
-            sb.append("VALIDADE: ").append(item.getDataValidade()).append(" (Faltam ").append(item.getDiasParaVencer()).append(" dias)\n");
-            sb.append("ESTOQUE ATUAL: ").append(item.getQuantidadeAtual()).append("\n");
-            sb.append("MÉDIA DE CONSUMO: ").append(String.format("%.2f", item.getConsumoMedioDiario())).append("/dia\n");
-            sb.append("DESPERDÍCIO PREVISTO: ").append(item.getQuantidadeDesperdicioPrevisto()).append(" unidades\n");
-            sb.append("\n");
+            boolean isUrgente = item.getDiasParaVencer() <= 30;
+            String statusColor = isUrgente ? "#d32f2f" : "#ff9800";
+            String statusBgColor = isUrgente ? "#ffebee" : "#fff3e0";
+            String statusIcon = isUrgente ? "🔴" : "🟡";
+            String statusLabel = isUrgente ? "URGENTE" : "ATENÇÃO";
+
+            sb.append("""
+                                <tr>
+                                    <td style="padding: 20px; background-color: #fafafa; border-left: 4px solid 
+            """);
+            sb.append(statusColor);
+            sb.append("""
+                ; border-radius: 4px; margin-bottom: 15px;">
+                                        <table width="100%">
+                                            <tr>
+                                                <td colspan="2" style="padding-bottom: 15px; border-bottom: 1px solid #e0e0e0;">
+                                                    <h3 style="color: #333333; margin: 0; font-size: 18px; font-weight: 600;">
+            """);
+            sb.append("                                            ").append(item.getNomeInsumo()).append("\n");
+            sb.append("""
+                                                    </h3>
+                                                    <span style="display: inline-block; margin-top: 8px; padding: 4px 12px; background-color: 
+            """);
+            sb.append(statusBgColor);
+            sb.append("; color: ");
+            sb.append(statusColor);
+            sb.append("""
+                ; border-radius: 20px; font-size: 12px; font-weight: 600;">
+            """);
+            sb.append("                                        ").append(statusIcon).append(" ").append(statusLabel).append("\n");
+            sb.append("""
+                                                    </span>
+                                                    <span style="display: inline-block; margin-top: 8px; margin-left: 8px; padding: 4px 12px; background-color: #e3f2fd; color: #1565c0; border-radius: 20px; font-size: 12px;">
+                                                        📦 Lote: 
+            """);
+            sb.append(item.getNumeroLote());
+            sb.append("""
+                
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="50%" style="padding: 15px 0;">
+                                                    <p style="color: #757575; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase;">Data de Validade</p>
+                                                    <p style="color: 
+            """);
+            sb.append(statusColor);
+            sb.append("""
+                ; font-size: 20px; font-weight: 600; margin: 0;">
+            """);
+            sb.append("                                        ").append(item.getDataValidade()).append("\n");
+            sb.append("""
+                                                    </p>
+                                                    <p style="color: #757575; font-size: 12px; margin: 4px 0 0 0;">
+            """);
+            sb.append("                                        Faltam <strong>").append(item.getDiasParaVencer()).append("</strong> dias\n");
+            sb.append("""
+                                                    </p>
+                                                </td>
+                                                <td width="50%" style="padding: 15px 0;">
+                                                    <p style="color: #757575; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase;">Estoque Atual</p>
+                                                    <p style="color: #333333; font-size: 20px; font-weight: 600; margin: 0;">
+            """);
+            sb.append("                                        ").append(item.getQuantidadeAtual()).append(" <span style=\"font-size: 14px; color: #757575;\">unidades</span>\n");
+            sb.append("""
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="50%" style="padding: 15px 0; border-top: 1px solid #e0e0e0;">
+                                                    <p style="color: #757575; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase;">Consumo Médio</p>
+                                                    <p style="color: #333333; font-size: 18px; font-weight: 600; margin: 0;">
+            """);
+            sb.append("                                        ").append(String.format("%.2f", item.getConsumoMedioDiario())).append(" <span style=\"font-size: 14px; color: #757575;\">/dia</span>\n");
+            sb.append("""
+                                                    </p>
+                                                </td>
+                                                <td width="50%" style="padding: 15px 0; border-top: 1px solid #e0e0e0;">
+                                                    <p style="color: #757575; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase;">Desperdício Previsto</p>
+                                                    <p style="color: #d32f2f; font-size: 18px; font-weight: 600; margin: 0;">
+                                                        ⚠️ 
+            """);
+            sb.append(item.getQuantidadeDesperdicioPrevisto());
+            sb.append("""
+                 <span style="font-size: 14px;">unidades</span>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr><td style="height: 15px;"></td></tr>
+            """);
         }
-        
-        sb.append("--------------------------------------------------\n");
-        sb.append("Ação Recomendada: Priorizar uso destes lotes ou realizar transferência imediata.\n");
+
+        sb.append("""
+                            </table>
+                            
+                            <!-- Call to Action -->
+                            <table width="100%" cellspacing="0" cellpadding="0" style="background-color: #fff3e0; border-radius: 8px; padding: 20px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <p style="color: #e65100; font-size: 14px; margin: 0; line-height: 1.6;">
+                                            <strong>📋 Ação Recomendada:</strong> Priorize o uso destes lotes ou realize transferência imediata para outros pontos de dispensação com maior demanda.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #37474f; padding: 25px 40px; border-radius: 0 0 8px 8px;">
+                            <p style="color: rgba(255,255,255,0.7); font-size: 12px; margin: 0; text-align: center;">
+                                Este é um e-mail automático do Sistema de Gestão de Insumos.<br>
+                                Por favor, não responda diretamente a esta mensagem.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>
+        """);
+
         return sb.toString();
     }
 }
