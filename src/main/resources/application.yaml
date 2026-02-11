@@ -40,6 +40,6 @@ app:
 
   stock-analysis:
     scheduled:
-      enabled: ${STOCK_ANALYSIS_ENABLED:false}  # Por padrão desabilitado, habilite em produção
-      cron: ${STOCK_ANALYSIS_CRON:0 0 8 1 * ?}  # Todo dia 1º às 08:00
+      enabled: ${STOCK_ANALYSIS_ENABLED:false}
+      cron: ${STOCK_ANALYSIS_CRON:0 0 8 1 * ?}
 
