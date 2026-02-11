@@ -19,15 +19,9 @@ public class PrevisaoDiariaUseCase {
 
 
     public List<InventarioDiarioDTO> execute() {
-        // 1. Busca dados brutos otimizados para o dia
-        var dados = dadosEstimativaUseCase.executeDiaria();
-
-        // 2. Aplica inteligência diária
-        var resultado = calculadoraPrevisaoDiariaUseCase.execute(dados);
-        
-        // 3. Notifica responsáveis se houver risco
-        notificacaoService.notificarPrevisaoDiaria(resultado);
-        
-        return resultado;
+        var dadosEstimativaDiaria = dadosEstimativaUseCase.executeDiaria();
+        var previsaoCalculada = calculadoraPrevisaoDiariaUseCase.execute(dadosEstimativaDiaria);
+        notificacaoService.notificarPrevisaoDiaria(previsaoCalculada);
+        return previsaoCalculada;
     }
 }
