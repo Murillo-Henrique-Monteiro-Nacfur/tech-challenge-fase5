@@ -36,7 +36,4 @@ public class Movimentacoes {
 
     @Column(name = "data_hora")
     private LocalDateTime dataHora;
-
-    @Column(name = "id_user")
-    private Long idUser;
 }

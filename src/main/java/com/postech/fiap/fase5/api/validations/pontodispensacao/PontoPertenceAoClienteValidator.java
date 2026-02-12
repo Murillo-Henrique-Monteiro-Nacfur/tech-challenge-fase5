@@ -14,7 +14,7 @@ public class PontoPertenceAoClienteValidator implements ConsumoValidation {
 
     @Override
     public void validate(RegistroConsumoDTO dto, Long clientId) {
-        boolean pertence = pontoDispensacaoRepository.findByIdAndClientId(dto.pontoDispensacaoId(), clientId).isPresent();
+        boolean pertence = pontoDispensacaoRepository.findByCnes(dto.cnesPontoDispensacao()).isPresent();
         if (!pertence) {
             throw new SecurityException("Ponto de Dispensação não pertence ao Cliente autenticado ou não existe.");
         }

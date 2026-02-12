@@ -1,0 +1,492 @@
+{
+  "info": {
+    "_postman_id": "7e6c0436-bc5c-4829-a611-8f059a74b776",
+    "name": "Collection Fase5",
+    "description": "Convertido de Insomnia para Postman",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "7641865",
+    "_collection_link": "https://go.postman.co/collection/7641865-7e6c0436-bc5c-4829-a611-8f059a74b776?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Fase5",
+      "item": [
+        {
+          "name": "Endpoints para editar pontos dispensação (Editar e-mail faz receber notificações)",
+          "item": [
+            {
+              "name": "2 - Atualização Ponto Dispensação Farmácia Avaliação (simula cenário Desperdício)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n\t\"id\": 3,\n\t\"cnes\": \"8880003\",\n\t\"nome\": \"Farmácia Avaliação (Desperdício)\",\n\t\"tipo\": \"FARMACIA_MUNICIPAL\",\n\t\"emailResponsavel\": \"SEU_EMAIL\",\n\t\"clientId\": 1\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/pontos-dispensacao/3",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "pontos-dispensacao",
+                    "3"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3 - Atualização Ponto Dispensação Hospital Avaliação (simula cenário Crítico)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 1,\n  \"cnes\": \"8880001\",\n  \"nome\": \"Hospital Avaliação (Crítico)\",\n  \"tipo\": \"FARMACIA_MUNICIPAL\",\n  \"emailResponsavel\": \"SEU_EMAIL\",\n  \"clientId\": 1\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/pontos-dispensacao/1",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "pontos-dispensacao",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Endpoint para simular schedular",
+          "item": [
+            {
+              "name": "4 - Endpoint Teste Validação Diaria",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "http://localhost:8080/teste/diaria",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "teste",
+                    "diaria"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "5 - Endpoint Teste Validação Mensal",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "http://localhost:8080/teste/diaria",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "teste",
+                    "diaria"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "6 - Endpoint Teste Validação Validade",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "http://localhost:8080/teste/diaria",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "teste",
+                    "diaria"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Criação de medicamentos, ponto dispensação, carga e consumo",
+          "item": [
+            {
+              "name": "Cadastro Insumo Dipirona",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n     \"codigoCatmat\": \"TEST006\",\n     \"nomeGenerico\": \"DIPIRONA SODICA\",\n     \"formaFarmaceutica\": \"COMPRIMIDO\",\n     \"marca\": \"Medley\",\n     \"descricao\": \"500MG\"\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/insumos",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "insumos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cadastro Insumo Paracetamol",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n\t \"codigoCatmat\": \"TEST007\",\n \t \"nomeGenerico\": \"PARACETAMOL\",\n\t \"formaFarmaceutica\": \"COMPRIMIDO\",\n\t \"marca\": \"EMS\",\n\t \"descricao\": \"750MG\"\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/insumos",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "insumos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cadastro Ponto Dispensação",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n\t \"cnes\": \"12345678\",\n\t \"nome\": \"Farmácia Central de Testes 2\",\n\t \"tipo\": \"FARMACIA_CENTRAL\",\n\t \"emailResponsavel\": \"COLOCAR_EMAIL_AQUI\",\n\t \"clientId\": 1\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/pontos-dispensacao",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "pontos-dispensacao"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Carga de Estoque",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"cnesPontoDispensacao\": \"12345678\",\n     \"dataCarga\": \"2026-01-24T18:00:00Z\",\n     \"itens\": [\n       {\n         \"catmat\": \"TEST006\",\n         \"numeroLote\": \"DP-2026-01\",\n         \"dataValidade\": \"2026-12-31\",\n         \"dataFabricacao\": \"2025-01-01\",\n         \"quantidadeEnviada\": 100,\n         \"quantidadeTotalLote\": 5000\n       }\n     ],\n     \"insumosDetalhes\": [\n        { \"catmat\": \"TEST006\", \"nome\": \"DIPIRONA SODICA\", \"formaFarmaceutica\": \"COMPRIMIDO\", \"marca\": \"Medley\", \"descricao\": \"500MG\"}\n     ]\n   }"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/estoque/carga",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "estoque",
+                    "carga"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Registrar Consumo",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n     \"cnesPontoDispensacao\": \"12345678\",\n     \"listaConsumo\": [\n       {\n         \"numeroLote\": \"DP-2026-01\",\n         \"quantidadeConsumida\": 5,\n         \"dataHoraEvento\": \"2026-02-11T10:00:00Z\"\n       }\n     ]\n   }"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/api/v1/consumo",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "api",
+                    "v1",
+                    "consumo"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "1 - Login de Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"token\", jsonData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": \"farmacia-central-app\",\n  \"clientSecret\": \"secret\",\n  \"grantType\": \"client_credentials\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/oauth2/token",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Carga de Estoque para evitar notificação diaria e sazonal",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\t\"cnesPontoDispensacao\": \"8880001\",\n     \"dataCarga\": \"2026-02-11T18:00:00Z\",\n     \"itens\": [\n       {\n         \"catmat\": \"TEST002\",\n         \"numeroLote\": \"DPAT-2026-02\",\n         \"dataValidade\": \"2026-12-31\",\n         \"dataFabricacao\": \"2025-01-01\",\n         \"quantidadeEnviada\": 3500,\n         \"quantidadeTotalLote\": 5000\n       },\n       {\n         \"catmat\": \"TEST001\",\n         \"numeroLote\": \"PADP-2026-02\",\n         \"dataValidade\": \"2026-10-31\",\n         \"dataFabricacao\": \"2024-05-01\",\n         \"quantidadeEnviada\": 500,\n         \"quantidadeTotalLote\": 10000\n       }\n     ],\n     \"insumosDetalhes\": [\n        { \"catmat\": \"TEST002\", \"nome\": \"ANTIALERGICO TESTE (SAZONAL)\", \"formaFarmaceutica\": \"XAROPE\", \"marca\": \"SazonalLab\", \"descricao\": \"Teste Sazonal\"},\n        { \"catmat\": \"TEST001\", \"nome\": \"DIPIRONA TESTE (DIARIO)\", \"formaFarmaceutica\": \"COMPRIMIDO\", \"marca\": \"LabTest\", \"descricao\": \"Teste Diário\" }\n     ]\n   }"
+            },
+            "url": {
+              "raw": "http://localhost:8080/estoque/carga",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "estoque",
+                "carga"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

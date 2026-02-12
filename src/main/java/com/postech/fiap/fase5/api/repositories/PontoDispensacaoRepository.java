@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface PontoDispensacaoRepository extends JpaRepository<PontoDispensacao, Long> {
-    Optional<PontoDispensacao> findByIdAndClientId(Long id, Long clientId);
+    Optional<PontoDispensacao> findByCnes(String cnes);
 
     @Query("""         
             SELECT pd

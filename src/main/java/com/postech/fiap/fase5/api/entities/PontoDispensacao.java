@@ -17,7 +17,7 @@ public class PontoDispensacao {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "cnes", unique = true)
+    @Column(name = "cnes", unique = true, nullable = false)
     private String cnes;
 
     @Column(name = "nome", nullable = false)

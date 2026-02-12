@@ -8,8 +8,6 @@ import com.postech.fiap.fase5.infrastructure.security.service.AuthenticatedClien
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,11 +27,9 @@ public class ConsumoController implements ConsumoControllerSwagger {
     public ResponseEntity<Void> registrarConsumo(@RequestBody RegistroConsumoDTO dto) {
         String clientIdString = authenticatedClientProvider.getCurrentClientId();
 
-        // Buscar ID interno do cliente
         Client client = clientRepository.findByClientId(clientIdString)
                 .orElseThrow(() -> new SecurityException("Cliente não encontrado: " + clientIdString));
 
-        // Executar UseCase
         registrarConsumoUseCase.execute(dto, client.getId());
 
         return ResponseEntity.ok().build();

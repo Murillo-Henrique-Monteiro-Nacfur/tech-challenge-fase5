@@ -15,15 +15,21 @@ public class PontoDispensacaoUpdateUseCase {
     private final PontoDispensacaoPresenter presenter;
 
     public PontoDispensacaoDTO execute(Long id, PontoDispensacaoDTO dto) {
-        PontoDispensacao existing = repository.findById(id)
+        PontoDispensacao existing = findPontoDispensacaoById(id);
+        updatePontoDispensacaoData(existing, dto);
+        PontoDispensacao updated = repository.save(existing);
+        return presenter.toDto(updated);
+    }
+
+    private PontoDispensacao findPontoDispensacaoById(Long id) {
+        return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ponto de Dispensação não encontrado com ID: " + id));
+    }
 
-        existing.setCnes(dto.cnes());
-        existing.setNome(dto.nome());
-        existing.setTipo(dto.tipo());
-        existing.setEmailResponsavel(dto.emailResponsavel());
-        // clientId geralmente não muda, mas se precisar, adicione aqui
-
-        return presenter.toDto(repository.save(existing));
+    private void updatePontoDispensacaoData(PontoDispensacao entity, PontoDispensacaoDTO dto) {
+        entity.setCnes(dto.cnes());
+        entity.setNome(dto.nome());
+        entity.setTipo(dto.tipo());
+        entity.setEmailResponsavel(dto.emailResponsavel());
     }
 }

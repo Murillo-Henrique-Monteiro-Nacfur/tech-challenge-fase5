@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: fase5-postgres
+    environment:
+      POSTGRES_DB: fase5
+      POSTGRES_USER: application
+      POSTGRES_PASSWORD: 7KTu)$$U9W1%7
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fase5-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U application -d fase5"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fase5-app
+    environment:
+      DATASOURCE_URL: jdbc:postgresql://postgres:5432/fase5
+      DATASOURCE_USERNAME: application
+      DATASOURCE_PASSWORD: 7KTu)$$U9W1%7
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USERNAME: postech2israelmurillowillian@gmail.com
+      MAIL_PASSWORD: jeql ezue prsg dpem
+      MAIL_FROM: noreply@fase5.postech.fiap.com
+      MAIL_RECIPIENTS: admin@fase5.postech.fiap.com
+      STOCK_ANALYSIS_ENABLED: false
+      STOCK_ANALYSIS_CRON: 0 0 8 1 * ?
+    ports:
+      - "8080:8080"
+    networks:
+      - fase5-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  fase5-network:
+    driver: bridge
+

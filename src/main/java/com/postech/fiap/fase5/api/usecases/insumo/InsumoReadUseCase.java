@@ -3,6 +3,7 @@ package com.postech.fiap.fase5.api.usecases.insumo;
 import com.postech.fiap.fase5.api.dto.insumos.InsumoDTO;
 import com.postech.fiap.fase5.api.presenter.InsumoPresenter;
 import com.postech.fiap.fase5.api.repositories.InsumoRepository;
+import com.postech.fiap.fase5.infrastructure.exceptions.ApplicationNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,6 @@ public class InsumoReadUseCase {
     public InsumoDTO findById(Long id) {
         return insumoRepository.findById(id)
                 .map(insumoPresenter::toDto)
-                .orElseThrow(() -> new IllegalArgumentException("Insumo não encontrado com ID: " + id));
+                .orElseThrow(() -> new ApplicationNotFoundException("Insumo não encontrado com ID: " + id));
     }
 }

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class ProcessarCargaEstoqueUseCase {
@@ -21,22 +23,34 @@ public class ProcessarCargaEstoqueUseCase {
 
     @Transactional
     public void execute(CargaEstoqueDTO cargaDTO, Long clientId) {
-        // 1. Segurança: Identificar o Ponto de Dispensação pelo Client ID do token
-        PontoDispensacao ponto = pontoDispensacaoRepository.findByClientIdAndCnes(clientId, cargaDTO.cnesPontoDispensacao())
+        PontoDispensacao ponto = buscarPontoDispensacao(clientId, cargaDTO.cnesPontoDispensacao());
+
+        processarInsumos(cargaDTO.insumosDetalhes());
+
+        processarItensCarga(cargaDTO.itens(), ponto);
+    }
+
+    private PontoDispensacao buscarPontoDispensacao(Long clientId, String cnes) {
+        return pontoDispensacaoRepository.findByClientIdAndCnes(clientId, cnes)
                 .orElseThrow(() -> new SecurityException("Cliente não possui Ponto de Dispensação vinculado."));
+    }
 
-        // 2. Processar Insumos (Garantir cadastro)
-        insumoCreateUpdateUseCase.execute(cargaDTO.insumosDetalhes());
+    private void processarInsumos(List<com.postech.fiap.fase5.api.dto.insumos.InsumoDetalheDTO> insumosDetalhes) {
+        insumoCreateUpdateUseCase.execute(insumosDetalhes);
+    }
 
-        // 3. Processar Itens (Lotes e Estoque)
-        if (cargaDTO.itens() != null) {
-            for (ItemCargaDTO item : cargaDTO.itens()) {
-                // Garante/Cria o Lote Mestre
-                Lote lote = loteCreateUpdateUseCase.execute(item);
-
-                // Atualiza o Estoque no Ponto
-                estoqueMovimentacaoUseCase.execute(ponto, lote, item.quantidadeEnviada());
-            }
+    private void processarItensCarga(List<ItemCargaDTO> itens, PontoDispensacao ponto) {
+        if (hasItens(itens)) {
+            itens.forEach(item -> processarItemCarga(item, ponto));
         }
+    }
+
+    private boolean hasItens(List<ItemCargaDTO> itens) {
+        return itens != null && !itens.isEmpty();
+    }
+
+    private void processarItemCarga(ItemCargaDTO item, PontoDispensacao ponto) {
+        Lote lote = loteCreateUpdateUseCase.execute(item);
+        estoqueMovimentacaoUseCase.execute(ponto, lote, item.quantidadeEnviada());
     }
 }

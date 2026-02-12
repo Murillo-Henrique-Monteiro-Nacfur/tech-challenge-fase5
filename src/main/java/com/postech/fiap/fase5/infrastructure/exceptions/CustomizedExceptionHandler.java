@@ -73,6 +73,28 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exceptionResponse, applicationNotFoundException.getHttpStatus());
     }
 
+    @ExceptionHandler(ClientNotFoundException.class)
+    public final ResponseEntity<ExceptionResponse<Object>> handleClientNotFoundException(ClientNotFoundException clientNotFoundException) {
+        ExceptionResponse<Object> exceptionResponse = new ExceptionResponse<>(
+                LocalDateTime.now().toString()
+                , "Client Not Found"
+                , clientNotFoundException.getMessage()
+        );
+
+        return new ResponseEntity<>(exceptionResponse, clientNotFoundException.getHttpStatus());
+    }
+
+    @ExceptionHandler(EmailSendingException.class)
+    public final ResponseEntity<ExceptionResponse<Object>> handleEmailSendingException(EmailSendingException emailSendingException) {
+        ExceptionResponse<Object> exceptionResponse = new ExceptionResponse<>(
+                LocalDateTime.now().toString()
+                , "Email Sending Error"
+                , emailSendingException.getMessage()
+        );
+
+        return new ResponseEntity<>(exceptionResponse, emailSendingException.getHttpStatus());
+    }
+
     @ExceptionHandler(value = {InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class})
     public final ResponseEntity<ExceptionResponse<Object>> handleAllExceptions(NonTransientDataAccessException dataIntegrityViolationException) {
         log.error("DataBase Integrity error: {}", dataIntegrityViolationException.getCause().getCause().getMessage());
