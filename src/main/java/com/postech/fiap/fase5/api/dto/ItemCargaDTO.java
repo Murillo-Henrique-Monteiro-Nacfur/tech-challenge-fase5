@@ -3,7 +3,7 @@ package com.postech.fiap.fase5.api.dto;
 import java.time.LocalDate;
 
 public record ItemCargaDTO(
-        String idInsumo,
+        String catmat,
         String idLoteExterno,
         String numeroLote,
         LocalDate dataValidade,

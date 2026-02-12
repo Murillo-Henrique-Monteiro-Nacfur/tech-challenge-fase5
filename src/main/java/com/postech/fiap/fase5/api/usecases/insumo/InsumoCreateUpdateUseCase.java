@@ -7,7 +7,7 @@ import com.postech.fiap.fase5.api.repositories.InsumoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -16,14 +16,21 @@ public class InsumoCreateUpdateUseCase {
     private final InsumoRepository insumoRepository;
     private final InsumoPresenter insumoPresenter;
 
-    public void execute(List<InsumoDetalheDTO> insumosDetalhes) {
+    public List<Insumo> execute(List<InsumoDetalheDTO> insumosDetalhes) {
         if (isInvalidList(insumosDetalhes)) {
-            return;
+            return Collections.emptyList();
         }
+        List<Insumo> insumos = new ArrayList<>();
+        for(var insumo : insumosDetalhes){
+            insumoRepository.findByCodigoCatmat(insumo.catmat())
+                    .ifPresent(insumos::add);
+            if(isNewInsumo(insumo)){
+                Insumo newInsumo = createAndSaveInsumo(insumo);
+                insumos.add(insumoRepository.saveAndFlush(newInsumo));
+            }
 
-        insumosDetalhes.stream()
-                .filter(this::isNewInsumo)
-                .forEach(this::createAndSaveInsumo);
+        }
+        return insumos;
     }
 
     private boolean isInvalidList(List<InsumoDetalheDTO> insumosDetalhes) {
@@ -31,11 +38,11 @@ public class InsumoCreateUpdateUseCase {
     }
 
     private boolean isNewInsumo(InsumoDetalheDTO insumoDetalhe) {
-        return !insumoRepository.existsByCodigoCatmat(insumoDetalhe.id());
+        return !insumoRepository.existsByCodigoCatmat(insumoDetalhe.catmat());
     }
 
-    private void createAndSaveInsumo(InsumoDetalheDTO insumoDetalhe) {
+    private Insumo createAndSaveInsumo(InsumoDetalheDTO insumoDetalhe) {
         Insumo insumo = insumoPresenter.toEntity(insumoDetalhe);
-        insumoRepository.save(insumo);
+        return insumoRepository.saveAndFlush(insumo);
     }
 }

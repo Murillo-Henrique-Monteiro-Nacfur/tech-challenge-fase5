@@ -16,8 +16,9 @@ public class LoteCreateUpdateUseCase {
     private final InsumoRepository insumoRepository;
 
     public Lote execute(ItemCargaDTO item) {
-        Insumo insumo = insumoRepository.findByCodigoCatmat(item.idInsumo())
-                .orElseThrow(() -> new IllegalArgumentException("Insumo não encontrado: " + item.idInsumo()));
+
+        Insumo insumo = insumoRepository.findByCodigoCatmat(item.catmat())
+                .orElseThrow(() -> new IllegalArgumentException("Insumo não encontrado: " + item.catmat()));
 
         return loteRepository.findByNumeroLoteAndInsumoId(item.numeroLote(), insumo.getId())
                 .orElseGet(() -> {

@@ -10,7 +10,7 @@ public class InsumoPresenter {
 
     public Insumo toEntity(InsumoDetalheDTO dto) {
         Insumo insumo = new Insumo();
-        insumo.setCodigoCatmat(dto.id());
+        insumo.setCodigoCatmat(dto.catmat());
         insumo.setNomeGenerico(dto.nome());
         insumo.setFormaFarmaceutica(dto.formaFarmaceutica());
         return insumo;

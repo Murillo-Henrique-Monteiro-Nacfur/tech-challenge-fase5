@@ -1,0 +1,499 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Scratch Pad
+meta:
+  id: wrk_scratchpad
+  created: 1699645273802
+  modified: 1699645273802
+  description: ""
+collection:
+  - name: Fase5
+    meta:
+      id: fld_78d7e194c5ce4f54b3d353c2c6ef1afb
+      created: 1769373592074
+      modified: 1770853844878
+      sortKey: -1769373592074
+      description: ""
+    children:
+      - url: http://localhost:8080/oauth2/token
+        name: 1 - Login de Cliente
+        meta:
+          id: req_096a0532551b4e8a838dde5b3bf3804a
+          created: 1769373805658
+          modified: 1770853545614
+          isPrivate: false
+          description: ""
+          sortKey: -1770770990606
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                 "clientId": "farmacia-central-app",
+                 "clientSecret": "secret",
+                 "grantType": "client_credentials"
+               }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: >-
+            if (insomnia.response.code === 200) {
+                insomnia.environment.set("token",  insomnia.response.json().access_token);
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/estoque/carga
+        name: Carga de Estoque para evitar notificação diaria e sazonal
+        meta:
+          id: req_4392c86c7751437791159b21573583fc
+          created: 1770849879963
+          modified: 1770852577913
+          isPrivate: false
+          description: ""
+          sortKey: -1769373595468.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: >-
+            {
+            		"cnesPontoDispensacao": "8880001",
+                 "dataCarga": "2026-02-11T18:00:00Z",
+                 "itens": [
+                   {
+                     "catmat": "TEST002",
+                     "numeroLote": "DPAT-2026-02",
+                     "dataValidade": "2026-12-31",
+                     "dataFabricacao": "2025-01-01",
+                     "quantidadeEnviada": 3500,
+                     "quantidadeTotalLote": 5000
+                   },
+                   {
+                     "catmat": "TEST001",
+                     "numeroLote": "PADP-2026-02",
+                     "dataValidade": "2026-10-31",
+                     "dataFabricacao": "2024-05-01",
+                     "quantidadeEnviada": 500,
+                     "quantidadeTotalLote": 10000
+                   }
+                 ],
+                 "insumosDetalhes": [
+                    { "catmat": "TEST002", "nome": "ANTIALERGICO TESTE (SAZONAL)", "formaFarmaceutica": "XAROPE", "marca": "SazonalLab", "descricao": "Teste Sazonal"},
+                    { "catmat": "TEST001", "nome": "DIPIRONA TESTE (DIARIO)", "formaFarmaceutica": "COMPRIMIDO", "marca": "LabTest", "descricao": "Teste Diário" }
+                 ]
+               }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{token}}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - name: Endpoints para editar pontos dispensação (Editar e-mail faz receber
+          notificações)
+        meta:
+          id: fld_4eb3ab5db7fd4fba8285e9ee31293264
+          created: 1770769375300
+          modified: 1770853550514
+          sortKey: -1770770990556
+          description: ""
+        children:
+          - url: http://localhost:8080/pontos-dispensacao/1
+            name: 3 - Atualização Ponto Dispensação Hospital Avaliação (simula cenário
+              Crítico)
+            meta:
+              id: req_7dbf977ca1c24d318e610808d19ad76c
+              created: 1770768641582
+              modified: 1770853570026
+              isPrivate: false
+              description: ""
+              sortKey: -1770769383278
+            method: PUT
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                	"id": 1,
+                	 "cnes": "8880001",
+                	 "nome": "Hospital Avaliação (Crítico)",
+                	 "tipo": "FARMACIA_MUNICIPAL",
+                	 "emailResponsavel": "COLOCAR_EMAIL_AQUI",
+                	 "clientId": 1
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              token: "{{token}}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pontos-dispensacao/3
+            name: 2 - Atualização Ponto Dispensação Farmácia Avaliação (simula cenário
+              Desperdício)
+            meta:
+              id: req_d1244b830d694820a8b42fa04e86090f
+              created: 1770769065947
+              modified: 1770853562453
+              isPrivate: false
+              description: ""
+              sortKey: -1770769383378
+            method: PUT
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                	"id": 3,
+                	 "cnes": "8880003",
+                	 "nome": "Farmácia Avaliação (Desperdício)",
+                	 "tipo": "FARMACIA_MUNICIPAL",
+                	 "emailResponsavel": "COLOCAR_EMAIL_AQUI",
+                	 "clientId": 1
+                }
+            headers:
+              - name: Authorization
+                value: Bearer {{token}}
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              token: "{{token}}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Endpoint para simular scheduler
+        meta:
+          id: fld_40777a4fd0544c258e1e95eb593aa2f1
+          created: 1770770990506
+          modified: 1770774790607
+          sortKey: -1770770990506
+          description: ""
+        children:
+          - url: http://localhost:8080/teste/diaria
+            name: 4 - Endpoint Teste Validação Diaria
+            meta:
+              id: req_3d0c1d204f0c41e4ae9cb5c70d34a2cd
+              created: 1770162213425
+              modified: 1770853579399
+              isPrivate: false
+              description: ""
+              sortKey: -1770771019750
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.0
+                description: ""
+                disabled: false
+            authentication:
+              type: bearer
+              token: "{{token}}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/teste/mensal
+            name: 5 - Endpoint Teste Validação Mensal
+            meta:
+              id: req_c05ba68f5a9d4acd9ce16eaa5f425ee0
+              created: 1770162457466
+              modified: 1770853585474
+              isPrivate: false
+              description: ""
+              sortKey: -1770771019650
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.0
+                description: ""
+                disabled: false
+            authentication:
+              type: bearer
+              token: "{{token}}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/teste/validade
+            name: 6 - Endpoint Teste Validação Validade
+            meta:
+              id: req_a409ca79b10b4f96a3d46a31e97ccc00
+              created: 1770252823820
+              modified: 1770853594827
+              isPrivate: false
+              description: ""
+              sortKey: -1770771019550
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.0
+                description: ""
+                disabled: false
+            authentication:
+              type: bearer
+              token: "{{token}}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Criação de medicamentos, ponto dispensação, carga e consumo
+        meta:
+          id: fld_49a17313d4524a5ab86ece9cd6062ea2
+          created: 1770853659558
+          modified: 1770853666558
+          sortKey: -1769373595546.625
+          description: ""
+        children:
+          - url: http://localhost:8080/insumos
+            name: Cadastro Insumo Dipirona
+            meta:
+              id: req_821b2e12416c423fb21a6669c4e84c9c
+              created: 1769378597679
+              modified: 1770853684553
+              isPrivate: false
+              description: ""
+              sortKey: -1770853669217.75
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                     "codigoCatmat": "TEST006",
+                     "nomeGenerico": "DIPIRONA SODICA",
+                     "formaFarmaceutica": "COMPRIMIDO",
+                     "marca": "Medley",
+                     "descricao": "500MG"
+                   }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              token: "{{token}}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/insumos
+            name: Cadastro Insumo Paracetamol
+            meta:
+              id: req_87f63c3dc6674df1918eac1283fb3093
+              created: 1769378638249
+              modified: 1770853671012
+              isPrivate: false
+              description: ""
+              sortKey: -1770853669224
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                	 "codigoCatmat": "TEST007",
+                 	 "nomeGenerico": "PARACETAMOL",
+                	 "formaFarmaceutica": "COMPRIMIDO",
+                	 "marca": "EMS",
+                	 "descricao": "750MG"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              token: "{{token}}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pontos-dispensacao
+            name: Cadastro Ponto Dispensação
+            meta:
+              id: req_df0dac663b56424fbc0c3077ad433f63
+              created: 1769378672329
+              modified: 1770853689014
+              isPrivate: false
+              description: ""
+              sortKey: -1770853669214.625
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                	 "cnes": "12345678",
+                	 "nome": "Farmácia Central de Testes 2",
+                	 "tipo": "FARMACIA_CENTRAL",
+                	 "emailResponsavel": "COLOCAR_EMAIL_AQUI",
+                	 "clientId": 1
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              token: "{{token}}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/consumo
+            name: Registrar Consumo
+            meta:
+              id: req_c446eab99afe4ffb95ae0f5984501bff
+              created: 1769378786266
+              modified: 1770853676263
+              isPrivate: false
+              description: ""
+              sortKey: -1770853669149
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                     "cnesPontoDispensacao": "12345678",
+                     "listaConsumo": [
+                       {
+                         "numeroLote": "DP-2026-01",
+                         "quantidadeConsumida": 5,
+                         "dataHoraEvento": "2026-02-11T10:00:00Z"
+                       }
+                     ]
+                   }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              token: "{{token}}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/estoque/carga
+            name: Carga de Estoque
+            meta:
+              id: req_f362baab50da4c9b8f390d1a7a841fbf
+              created: 1770853077467
+              modified: 1770853699483
+              isPrivate: false
+              description: ""
+              sortKey: -1770853669199
+            method: POST
+            body:
+              mimeType: application/json
+              text: >-
+                {
+                		"cnesPontoDispensacao": "12345678",
+                     "dataCarga": "2026-01-24T18:00:00Z",
+                     "itens": [
+                       {
+                         "catmat": "TEST006",
+                         "numeroLote": "DP-2026-01",
+                         "dataValidade": "2026-12-31",
+                         "dataFabricacao": "2025-01-01",
+                         "quantidadeEnviada": 100,
+                         "quantidadeTotalLote": 5000
+                       }
+                     ],
+                     "insumosDetalhes": [
+                        { "catmat": "TEST006", "nome": "DIPIRONA SODICA", "formaFarmaceutica": "COMPRIMIDO", "marca": "Medley", "descricao": "500MG"}
+                     ]
+                   }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              token: "{{token}}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1699645289633
+    modified: 1770853844876
+  cookies:
+    - id: b322aa64-2621-4dbe-b4af-64c884d750ce
+      key: JSESSIONID
+      value: 6FC82A2FB90790B059A5F8CE01BA4D82
+      domain: localhost
+      path: /
+      secure: false
+      httpOnly: true
+      hostOnly: true
+environments:
+  name: Base Environment
+  meta:
+    id: env_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1699645289631
+    modified: 1770853844877
+    isPrivate: false
+  data:
+    token: eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJ0ZWNoLWNoYWxsZW5nZS1mYXNlNS1zZXJ2aWNlIiwic3ViIjoiZmFybWFjaWEtY2VudHJhbC1hcHAiLCJleHAiOjE3NzQ0NTM4NDQsImlhdCI6MTc3MDg1Mzg0NCwiY2xpZW50X2lkIjoiZmFybWFjaWEtY2VudHJhbC1hcHAiLCJzY29wZSI6InJlYWQgd3JpdGUifQ.sHmMuOtCAWZgf8Z0cTdfZWe8qnmjgU7tip9hfKTdVF6mZZRCp9GCfedHnzmb0tPqtQHDAXQYZWbKVW-2thhFCGumWoqeaL_G5hD74J65SmwFoUpRcnYzVnkuB5EnaAJWU7h9zEP-eNwbiwgE7DWBkxtAkfZE4YqJpUdmyr5b83iPSj9o7zbPDGmHBjC51LyQMytNANFgYjZE2asLnT5Ie0jedMfJ7UY85jq6GSEtk2minvjS6oFGaTwLseW9Jfroac6mlhjSP35qtFdJea8nBwiqcYyQLZiKgq-FiKi1CWkAmXqIIPyExO1U5qjGZmtzKQYerCJsxp-pmJE0_pVDhw

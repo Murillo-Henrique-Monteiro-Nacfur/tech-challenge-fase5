@@ -11,8 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface LoteInventarioRepository extends JpaRepository<LoteInventario, Long> {
+    Optional<LoteInventario> findByPontoDispensacaoIdAndLoteNumeroLote(Long pontoDispensacaoId, String numeroLote);
     Optional<LoteInventario> findByPontoDispensacaoIdAndLoteId(Long pontoDispensacaoId, Long loteId);
-
 
     @Query(value = """
             SELECT li.id_ponto_dispensacao as idPontoDispensacao,
