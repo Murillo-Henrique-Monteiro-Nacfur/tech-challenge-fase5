@@ -35,6 +35,4 @@ public class Lote {
     @Column(name = "quantidade")
     private Integer quantidade;
 
-    @Column(name = "id_user")
-    private Long idUser;
 }

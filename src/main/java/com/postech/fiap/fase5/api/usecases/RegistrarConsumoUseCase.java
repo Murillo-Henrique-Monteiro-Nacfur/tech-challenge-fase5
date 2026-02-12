@@ -9,6 +9,7 @@ import com.postech.fiap.fase5.api.repositories.HistoricoConsumoRepository;
 import com.postech.fiap.fase5.api.repositories.LoteInventarioRepository;
 import com.postech.fiap.fase5.api.repositories.PontoDispensacaoRepository;
 import com.postech.fiap.fase5.api.validations.ConsumoValidation;
+import com.postech.fiap.fase5.infrastructure.exceptions.ApplicationNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +28,7 @@ public class RegistrarConsumoUseCase {
     @Transactional
     public void execute(RegistroConsumoDTO registroConsumo, Long clientId) {
         executeValidations(registroConsumo, clientId);
-        PontoDispensacao pontoDispensacao = findPontoDispensacao(registroConsumo.pontoDispensacaoId());
+        PontoDispensacao pontoDispensacao = findPontoDispensacao(clientId, registroConsumo.cnesPontoDispensacao());
         processarItensConsumo(registroConsumo.listaConsumo(), pontoDispensacao);
     }
 
@@ -35,9 +36,9 @@ public class RegistrarConsumoUseCase {
         validations.forEach(validation -> validation.validate(registroConsumo, clientId));
     }
 
-    private PontoDispensacao findPontoDispensacao(Long pontoDispensacaoId) {
-        return pontoDispensacaoRepository.findById(pontoDispensacaoId)
-                .orElseThrow(() -> new IllegalArgumentException("Ponto de Dispensação não encontrado."));
+    private PontoDispensacao findPontoDispensacao(Long clientId, String cnes) {
+        return pontoDispensacaoRepository.findByClientIdAndCnes(clientId, cnes)
+                .orElseThrow(() -> new ApplicationNotFoundException("Ponto de Dispensação não encontrado."));
     }
 
     private void processarItensConsumo(List<ItemConsumoDTO> itensConsumo, PontoDispensacao pontoDispensacao) {
@@ -45,21 +46,21 @@ public class RegistrarConsumoUseCase {
     }
 
     private void processarItemConsumo(ItemConsumoDTO itemConsumo, PontoDispensacao pontoDispensacao) {
-        LoteInventario loteInventario = findLoteInventario(pontoDispensacao.getId(), itemConsumo.loteId());
+        LoteInventario loteInventario = findLoteInventario(pontoDispensacao.getId(), itemConsumo.numeroLote());
         validarSaldoDisponivel(loteInventario, itemConsumo);
         atualizarQuantidadeInventario(loteInventario, itemConsumo.quantidadeConsumida());
         registrarHistoricoConsumo(pontoDispensacao, loteInventario, itemConsumo);
     }
 
-    private LoteInventario findLoteInventario(Long pontoDispensacaoId, Long loteId) {
-        return loteInventarioRepository.findByPontoDispensacaoIdAndLoteId(pontoDispensacaoId, loteId)
-                .orElseThrow(() -> new IllegalArgumentException("Lote ID " + loteId + " não encontrado no inventário deste ponto."));
+    private LoteInventario findLoteInventario(Long pontoDispensacaoId, String numeroLote) {
+        return loteInventarioRepository.findByPontoDispensacaoIdAndLoteNumeroLote(pontoDispensacaoId, numeroLote)
+                .orElseThrow(() -> new ApplicationNotFoundException("Lote ID " + numeroLote + " não encontrado no inventário deste ponto."));
     }
 
     private void validarSaldoDisponivel(LoteInventario loteInventario, ItemConsumoDTO itemConsumo) {
         boolean saldoInsuficiente = loteInventario.getQuantidade() < itemConsumo.quantidadeConsumida();
         if (saldoInsuficiente) {
-            throw new IllegalArgumentException("Saldo insuficiente para o lote " + itemConsumo.loteId() + ". Disponível: " + loteInventario.getQuantidade());
+            throw new ApplicationNotFoundException("Saldo insuficiente para o lote " + itemConsumo.numeroLote() + ". Disponível: " + loteInventario.getQuantidade());
         }
     }
 
