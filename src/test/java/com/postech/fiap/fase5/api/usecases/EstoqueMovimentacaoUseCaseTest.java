@@ -269,7 +269,6 @@ class EstoqueMovimentacaoUseCaseTest {
         lote.setQuantidade(quantidade);
         lote.setDataValidade(LocalDate.of(2026, 12, 31));
         lote.setDataFabricacao(LocalDate.of(2026, 1, 1));
-        lote.setIdUser(1L);
         return lote;
     }
 

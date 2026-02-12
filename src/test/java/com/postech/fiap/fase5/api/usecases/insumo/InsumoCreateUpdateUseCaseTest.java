@@ -53,11 +53,13 @@ class InsumoCreateUpdateUseCaseTest {
         Insumo insumoEntity1 = criarInsumoEntity(null, "CATMAT001", "Paracetamol");
         Insumo insumoEntity2 = criarInsumoEntity(null, "CATMAT002", "Ibuprofeno");
 
+        when(insumoRepository.findByCodigoCatmat("CATMAT001")).thenReturn(java.util.Optional.empty());
+        when(insumoRepository.findByCodigoCatmat("CATMAT002")).thenReturn(java.util.Optional.empty());
         when(insumoRepository.existsByCodigoCatmat("CATMAT001")).thenReturn(false);
         when(insumoRepository.existsByCodigoCatmat("CATMAT002")).thenReturn(false);
         when(insumoPresenter.toEntity(insumo1)).thenReturn(insumoEntity1);
         when(insumoPresenter.toEntity(insumo2)).thenReturn(insumoEntity2);
-        when(insumoRepository.save(any(Insumo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(insumoRepository.saveAndFlush(any(Insumo.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         insumoCreateUpdateUseCase.execute(insumosDetalhes);
 
@@ -65,7 +67,7 @@ class InsumoCreateUpdateUseCaseTest {
         verify(insumoRepository).existsByCodigoCatmat("CATMAT002");
         verify(insumoPresenter).toEntity(insumo1);
         verify(insumoPresenter).toEntity(insumo2);
-        verify(insumoRepository, times(2)).save(any(Insumo.class));
+        verify(insumoRepository, times(4)).saveAndFlush(any(Insumo.class));
     }
 
     @Test
@@ -87,12 +89,15 @@ class InsumoCreateUpdateUseCaseTest {
 
         List<InsumoDetalheDTO> insumosDetalhes = Arrays.asList(insumo1, insumo2);
 
+        Insumo insumoEntity1 = criarInsumoEntity(1L, "CATMAT001", "Paracetamol");
         Insumo insumoEntity2 = criarInsumoEntity(null, "CATMAT002", "Ibuprofeno");
 
+        when(insumoRepository.findByCodigoCatmat("CATMAT001")).thenReturn(java.util.Optional.of(insumoEntity1));
+        when(insumoRepository.findByCodigoCatmat("CATMAT002")).thenReturn(java.util.Optional.empty());
         when(insumoRepository.existsByCodigoCatmat("CATMAT001")).thenReturn(true);
         when(insumoRepository.existsByCodigoCatmat("CATMAT002")).thenReturn(false);
         when(insumoPresenter.toEntity(insumo2)).thenReturn(insumoEntity2);
-        when(insumoRepository.save(any(Insumo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(insumoRepository.saveAndFlush(any(Insumo.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         insumoCreateUpdateUseCase.execute(insumosDetalhes);
 
@@ -100,7 +105,7 @@ class InsumoCreateUpdateUseCaseTest {
         verify(insumoRepository).existsByCodigoCatmat("CATMAT002");
         verify(insumoPresenter, never()).toEntity(insumo1);
         verify(insumoPresenter).toEntity(insumo2);
-        verify(insumoRepository, times(1)).save(any(Insumo.class));
+        verify(insumoRepository, times(2)).saveAndFlush(any(Insumo.class));
     }
 
     @Test
@@ -109,7 +114,7 @@ class InsumoCreateUpdateUseCaseTest {
 
         verify(insumoRepository, never()).existsByCodigoCatmat(anyString());
         verify(insumoPresenter, never()).toEntity(any(InsumoDetalheDTO.class));
-        verify(insumoRepository, never()).save(any(Insumo.class));
+        verify(insumoRepository, never()).saveAndFlush(any(Insumo.class));
     }
 
     @Test
@@ -120,7 +125,7 @@ class InsumoCreateUpdateUseCaseTest {
 
         verify(insumoRepository, never()).existsByCodigoCatmat(anyString());
         verify(insumoPresenter, never()).toEntity(any(InsumoDetalheDTO.class));
-        verify(insumoRepository, never()).save(any(Insumo.class));
+        verify(insumoRepository, never()).saveAndFlush(any(Insumo.class));
     }
 
     @Test
@@ -149,13 +154,18 @@ class InsumoCreateUpdateUseCaseTest {
 
         List<InsumoDetalheDTO> insumosDetalhes = Arrays.asList(insumo1, insumo2, insumo3);
 
+        Insumo insumoEntity1 = criarInsumoEntity(1L, "CATMAT001", "Paracetamol");
         Insumo insumoEntity2 = criarInsumoEntity(null, "CATMAT002", "Ibuprofeno");
+        Insumo insumoEntity3 = criarInsumoEntity(3L, "CATMAT003", "Dipirona");
 
+        when(insumoRepository.findByCodigoCatmat("CATMAT001")).thenReturn(java.util.Optional.of(insumoEntity1));
+        when(insumoRepository.findByCodigoCatmat("CATMAT002")).thenReturn(java.util.Optional.empty());
+        when(insumoRepository.findByCodigoCatmat("CATMAT003")).thenReturn(java.util.Optional.of(insumoEntity3));
         when(insumoRepository.existsByCodigoCatmat("CATMAT001")).thenReturn(true);
         when(insumoRepository.existsByCodigoCatmat("CATMAT002")).thenReturn(false);
         when(insumoRepository.existsByCodigoCatmat("CATMAT003")).thenReturn(true);
         when(insumoPresenter.toEntity(insumo2)).thenReturn(insumoEntity2);
-        when(insumoRepository.save(any(Insumo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(insumoRepository.saveAndFlush(any(Insumo.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         insumoCreateUpdateUseCase.execute(insumosDetalhes);
 
@@ -165,7 +175,7 @@ class InsumoCreateUpdateUseCaseTest {
         verify(insumoPresenter, never()).toEntity(insumo1);
         verify(insumoPresenter).toEntity(insumo2);
         verify(insumoPresenter, never()).toEntity(insumo3);
-        verify(insumoRepository, times(1)).save(any(Insumo.class));
+        verify(insumoRepository, times(2)).saveAndFlush(any(Insumo.class));
     }
 
     @Test
@@ -182,16 +192,17 @@ class InsumoCreateUpdateUseCaseTest {
 
         Insumo insumoEntity = criarInsumoEntity(null, "CATMAT001", "Paracetamol");
 
+        when(insumoRepository.findByCodigoCatmat("CATMAT001")).thenReturn(java.util.Optional.empty());
         when(insumoRepository.existsByCodigoCatmat("CATMAT001")).thenReturn(false);
         when(insumoPresenter.toEntity(insumoDetalhe)).thenReturn(insumoEntity);
-        when(insumoRepository.save(any(Insumo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(insumoRepository.saveAndFlush(any(Insumo.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         insumoCreateUpdateUseCase.execute(insumosDetalhes);
 
         ArgumentCaptor<Insumo> insumoCaptor = ArgumentCaptor.forClass(Insumo.class);
-        verify(insumoRepository).save(insumoCaptor.capture());
+        verify(insumoRepository, times(2)).saveAndFlush(insumoCaptor.capture());
 
-        Insumo insumoSalvo = insumoCaptor.getValue();
+        Insumo insumoSalvo = insumoCaptor.getAllValues().getFirst();
         assertNotNull(insumoSalvo);
         assertEquals("CATMAT001", insumoSalvo.getCodigoCatmat());
         assertEquals("Paracetamol", insumoSalvo.getNomeGenerico());
@@ -216,6 +227,11 @@ class InsumoCreateUpdateUseCaseTest {
 
         List<InsumoDetalheDTO> insumosDetalhes = Arrays.asList(insumo1, insumo2);
 
+        Insumo insumoEntity1 = criarInsumoEntity(1L, "CATMAT001", "Paracetamol");
+        Insumo insumoEntity2 = criarInsumoEntity(2L, "CATMAT002", "Ibuprofeno");
+
+        when(insumoRepository.findByCodigoCatmat("CATMAT001")).thenReturn(java.util.Optional.of(insumoEntity1));
+        when(insumoRepository.findByCodigoCatmat("CATMAT002")).thenReturn(java.util.Optional.of(insumoEntity2));
         when(insumoRepository.existsByCodigoCatmat("CATMAT001")).thenReturn(true);
         when(insumoRepository.existsByCodigoCatmat("CATMAT002")).thenReturn(true);
 
@@ -224,7 +240,7 @@ class InsumoCreateUpdateUseCaseTest {
         verify(insumoRepository).existsByCodigoCatmat("CATMAT001");
         verify(insumoRepository).existsByCodigoCatmat("CATMAT002");
         verify(insumoPresenter, never()).toEntity(any(InsumoDetalheDTO.class));
-        verify(insumoRepository, never()).save(any(Insumo.class));
+        verify(insumoRepository, never()).saveAndFlush(any(Insumo.class));
     }
 
     private Insumo criarInsumoEntity(Long id, String codigoCatmat, String nomeGenerico) {
