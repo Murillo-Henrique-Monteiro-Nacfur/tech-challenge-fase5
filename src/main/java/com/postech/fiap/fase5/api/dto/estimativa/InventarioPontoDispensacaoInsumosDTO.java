@@ -15,13 +15,11 @@ public class InventarioPontoDispensacaoInsumosDTO {
     private Integer quantidade;
     private List<InventarioPontoDispensacaoInsumosPorLoteDTO> lotes;
     
-    // Previsão baseada nos últimos 30 dias (Tendência Recente - Diária)
     private Double consumoMedioDiario;
     private Integer previsaoEsgotamentoDias;
     private String statusPrevisao; // Ex: "CRÍTICO", "ALERTA", "NORMAL"
     private List<SugestaoTransferenciaDTO> sugestoesTransferenciaImediata;
 
-    // Previsão baseada no próximo mês dos anos anteriores (Sazonalidade - Mensal)
     private Double consumoMedioDiarioSazonal;
     private Integer previsaoEsgotamentoDiasSazonal;
     private String statusPrevisaoSazonal;

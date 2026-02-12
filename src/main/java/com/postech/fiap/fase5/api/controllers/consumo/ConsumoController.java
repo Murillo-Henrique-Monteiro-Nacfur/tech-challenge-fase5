@@ -29,11 +29,9 @@ public class ConsumoController implements ConsumoControllerSwagger {
     public ResponseEntity<Void> registrarConsumo(@RequestBody RegistroConsumoDTO dto) {
         String clientIdString = authenticatedClientProvider.getCurrentClientId();
 
-        // Buscar ID interno do cliente
         Client client = clientRepository.findByClientId(clientIdString)
                 .orElseThrow(() -> new SecurityException("Cliente não encontrado: " + clientIdString));
 
-        // Executar UseCase
         registrarConsumoUseCase.execute(dto, client.getId());
 
         return ResponseEntity.ok().build();
